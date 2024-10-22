@@ -2,7 +2,7 @@
 
 installed = rownames(installed.packages())
 
-cran_packages <- c("dplyr", "ggplot2", "readxl")
+cran_packages <- c("dplyr", "ggplot2", "readxl", "knitr", "leaflet", "sf", "rnaturalearth")
 
 ix = (cran_packages %in% installed)
 for (package in cran_packages[!ix]) {

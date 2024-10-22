@@ -1,0 +1,119 @@
+---
+format: pdf
+---
+
+![](namibia_coa_wikipedia.png){fig-align="center"}
+
+## REPUBLIC OF NAMIBIA
+
+## MINISTRY OF FISHERIES AND MARINE RESOURCES
+
+Directorate of Aquaculture
+
+Enquiries: H. Skrypzeck
+
+Tel: (+264 64) 4101000
+
+Fax: (+264 64) 404385
+
+P O Box 912
+
+Swakopmund
+
+Namibia
+
+## Namibian Shellfish Sanitation and Biotoxin Monitoring Program
+
+## Aquapark 1
+
+Walvis Bay
+
+Namibia
+
+## Phytoplankton Summary
+
+```{r}
+#| include=FALSE
+library(readxl)
+library(dplyr)
+library(knitr)
+```
+
+```{r}
+#| include=FALSE
+file <- file.path("~/Documents/Bigelow/data/Qry_Phytoplankton Total Cell_L DATA.XLSX")
+data <- read_excel(file)
+```
+
+```{r}
+#| include=FALSE
+z <- data |>
+  filter(`Date Collected` == max(`Date Collected`),
+         Station %in% c("Production Area 1", "Production Area 2"))
+```
+
+```{r}
+#| include=FALSE
+z |>
+  distinct() |>
+  group_by(Groups) |>
+  summarise(total_cells = sum(`Cells/L`))
+```
+
+### Diatoms
+
+```{r}
+#| echo=FALSE
+options(knitr.kable.NA = '') # what is another way to set this option?
+
+diatoms <- z |>
+  distinct() |>
+  filter(Groups %in% c("Diatom", "Diatoms")) |>
+  mutate(`Cells/L` = round(`Cells/L`)) |>
+  select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
+  rename("Sampling Date" = "Date Collected", 
+         "Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species")
+
+diatoms[nrow(diatoms)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(diatoms$`Cells/L`), "Diatoms")
+
+kable(diatoms)
+```
+
+### Dinoflagellates
+
+```{r}
+#| echo=FALSE
+dinos <- z |>
+  distinct() |>
+  filter(Groups %in% c("Dinoflagellates")) |>
+  mutate(`Cells/L` = round(`Cells/L`)) |>
+  select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
+  rename("Sampling Date" = "Date Collected", 
+         "Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species")
+
+dinos[nrow(dinos)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(dinos$`Cells/L`), "Dinoflagellates")
+
+kable(dinos)
+```
+
+### Zooplankton
+
+```{r}
+#| echo=FALSE
+zoop <- z |>
+  distinct() |>
+  filter(Groups %in% c("Zooplankton")) |>
+  mutate(`Cells/L` = round(`Cells/L`)) |>
+  select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
+  rename("Sampling Date" = "Date Collected", 
+         "Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species")
+
+zoop[nrow(zoop)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(zoop$`Cells/L`), "Zooplankton")
+
+kable(zoop)
+```
+
+*Please note: Some of the phytoplankton from the genera Dinophysis and Pseudo-nitzschia can potentially produce biotoxins. The biotoxin produced by the particular species is indicated in the "Potential Toxin" column, however this does not mean that the toxin is present. Only biotoxin tests can confirm the presence or absence of toxin.*
