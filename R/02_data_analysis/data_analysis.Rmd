@@ -1,0 +1,292 @@
+---
+title: "Data Analysis and Visualisation"
+author: "Johnathan Evanilla"
+date: "10/28/2024"
+---
+
+```{r}
+#| include=FALSE
+library(dplyr)
+library(ggplot2)
+library(readxl)
+```
+
+
+Set your path to the "Qry_Phytoplankton Total Cell_L DATA.XLSX" spreadsheet in quotes below:
+
+```{r}
+my_path <- file.path("~/Documents/Bigelow/data/Qry_Phytoplankton Total Cell_L DATA.XLSX")
+```
+
+
+The package readxl provides tools for reading excel files (ie xls and xlsx) 
+
+```{r}
+x <- read_excel(path = my_path)
+
+x
+```
+
+
+## Inspecting data.frame objects
+We already saw how the functions head() and str() can be useful to check the content and the structure of a data.frame. Here is a non-exhaustive list of functions to get a sense of the content/structure of the data.
+
+### Size:
+- dim() - returns a vector with the number of rows in the first element, and the number of columns as the second element (the __dim__ensions of the object)
+- nrow() - returns the number of rows
+- ncol() - returns the number of columns
+
+```{r}
+dim(x)
+nrow(x)
+ncol(x)
+```
+
+### Content:
+- head() - shows the first 6 rows
+- tail() - shows the last 6 rows
+
+```{r}
+head(x, 10)
+tail(x)
+```
+
+### Names:
+- names() - returns the column names (synonym of colnames() for data.frame objects)
+- rownames() - returns the row names
+
+```{r}
+names(x)
+```
+
+### Summary:
+
+- str() - structure of the object and information about the class, length and content of each column
+- summary() - summary statistics for each column
+- glimpse()
+
+```{r}
+str(x)
+```
+
+```{r}
+summary(x)
+```
+
+```{r}
+summary(x$`Cells/L`)
+```
+
+
+```{r}
+glimpse(x)
+```
+
+Note: most of these functions are “generic”, meaning they can be used on other types of objects beyond a data.frame.
+
+
+```View(sp)```
+
+
+## Working on data frames using dplyr
+
+### Subsetting columns
+
+```{r}
+x
+```
+
+
+```{r}
+select(x, `Date Collected`, Station, Specie, `Cells/L`)
+```
+
+The pipe operator `|>` passes the result of the content on its left as the first argument to the function on its right
+
+```{r}
+x |>
+  select(`Date Collected`, Station, Specie, `Cells/L`)
+```
+
+### Filtering values
+
+```{r}
+x |>
+  filter(`Cells/L` < 100)
+```
+
+
+```{r}
+x |> 
+  select(`Date Collected`, Station, Specie, `Cells/L`) |>
+  filter(`Cells/L` < 100)
+```
+
+```{r}
+x |>
+  filter(Station == "Production Area 1")
+```
+
+### Mutate
+
+```{r}
+x |>
+  mutate(id = paste(`Date Collected`, Station, Specie, sep="_"))
+```
+
+Let's add a month and week column
+
+```{r}
+x <- x |>
+  mutate(month = format(`Date Collected`, format="%m"),
+         week = format(`Date Collected`, format="%U"),
+         year = format(`Date Collected`, format="%Y"))
+```
+
+
+There are lot's of format codes for dates in R. [list](https://www.r-bloggers.com/2013/08/date-formats-in-r/) contains a lot of them.
+
+```{r}
+format(x$`Date Collected`[1], format="%b")
+```
+
+
+# *Alexandrium*
+
+
+```{r}
+al <- filter(x, Specie %in% c("Alexandrium sp.", "Alexandrium Tamarense", "Alexandrium acatenella", "Alexandrium catenella", "Alexandrium minutum", "alexandrium Tamarense"))
+```
+
+
+```{r}
+al
+```
+
+`count()` let's us see the unique values in a column of the data.frame
+
+```{r}
+count(al, Station)
+```
+
+
+## Base R plotting
+
+We can make histograms using `hist()`
+
+```{r}
+hist(al$`Cells/L`)
+```
+
+The breaks argument lets us specify number of breaks in the plot
+
+```{r}
+hist(al$`Cells/L`, breaks=25)
+```
+
+Log-scaled histogram
+
+```{r}
+hist(log10(al$`Cells/L`+1))
+```
+
+The `plot()` function can be used for simple plotting of two variables
+
+```{r}
+plot(`Cells/L`~month, data=al)
+```
+
+
+## Plotting with `ggplot2`
+
+We can make plots by creating a plot object with `ggplot()`, then use the `+` operator to add features to it
+
+
+
+```{r}
+ggplot(data=al, aes(x=month, y=`Cells/L`)) +
+  geom_point(alpha=0.3)
+```
+
+```{r}
+y <- al |>
+  filter(year == 2019,
+         Station == "Production Area 2")
+
+y
+```
+
+
+```{r}
+ggplot(y, aes(x=`Date Collected`, y = `Cells/L`)) +
+  geom_line()
+```
+
+
+```{r}
+ggplot(data=al, aes(x=week, y=Station, fill=`Cells/L`)) +
+  geom_tile() +
+  scale_fill_viridis_b() +
+  theme_bw()
+```
+
+# Dinophysis
+
+```{r}
+dn <- filter(x, Specie == "Dinophysis acuminata")
+```
+
+```{r}
+dn <- filter(x, Specie %in% c("Dinophysis acuminata", "Dinophysis fortii", "Dinophysis sp.", "Dinophysis rotundata", "Dinophysis accuta"))
+```
+
+
+```{r}
+count(dn, Station)
+```
+
+```{r}
+hist(dn$`Cells/L`)
+```
+
+```{r}
+hist(log10(dn$`Cells/L`))
+```
+
+```{r}
+plot(`Cells/L`~month, data=dn)
+```
+
+```{r}
+ggplot(data=dn, aes(x=week, y=Station, fill=`Cells/L`)) +
+  geom_tile() +
+  scale_fill_viridis_b() +
+  theme_bw()
+```
+
+# Pseudo-nitzschia
+
+```{r}
+pn <- filter(x, Specie %in% c("Pseudo-nitzschia sp.", "Pseudo-nitzschia spp.", "Pseudo-nitzschia seriata gr.", "Pseudo-nitzschia delicatissima gr."))
+```
+
+
+```{r}
+plot(`Cells/L`~month, data=pn)
+```
+
+```{r}
+ggplot(data=pn, aes(x=`Date Collected`, y=Station, fill=`Cells/L`)) +
+  geom_tile() +
+  scale_fill_viridis_b() +
+  theme_bw()
+```
+
+
+```{r}
+x |>
+  filter(`Toxin producing species` %in% c("PSP", "ASP", "DSP")) |>
+  ggplot(aes(x=week, y=Station, fill=`Toxin producing species`)) +
+  geom_tile()
+```
+

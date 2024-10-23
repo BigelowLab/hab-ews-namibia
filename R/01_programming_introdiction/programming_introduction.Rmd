@@ -1,0 +1,239 @@
+---
+title: "Introduction to Programming"
+output:
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+## Welcome
+
+## Rstudio Tour
+
+- Console Pane
+
+- Environment Pane
+
+- Text Editor Pane
+
+- File Browser Pane
+
+
+## What is a package?
+
+
+Content adapted from https://datacarpentry.org/R-genomics/01-intro-to-R.html
+
+[Base R cheat sheet](https://iqss.github.io/dss-workshops/R/Rintro/base-r-cheat-sheet.pdf)
+
+
+### Hello World!
+
+```{r}
+print("Hello world!")
+```
+
+
+```{r}
+getwd()
+```
+
+
+## Creating Objects
+
+```{r}
+3+3
+```
+
+```{r}
+# I'm adding 3 and 5
+3+5
+```
+
+
+```{r error=TRUE}
+#I'm adding 3 and 5
+3+5
+```
+
+```{r}
+# assign 3 to a
+a <- 3
+# assign 5 to b
+b <- 5
+
+# what now is a
+a
+# what now is b
+b
+
+#Add a and b
+a + b
+```
+
+
+## Functions
+
+# Create a function that adds two numbers
+
+```{r}
+adder <- function(a,b) {
+  c = a+b
+  return(c)
+}
+```
+
+# test if it works
+
+```{r}
+adder(5,5)
+```
+
+# R has lots of functions built in, like `round()`
+
+```{r}
+round(3.14159)
+```
+
+# typing a `?` in front of the function will access the help page for that function
+
+```{r}
+?round
+```
+
+# try using the `digits`
+
+```{r}
+round(3.14159, digits=2)
+```
+
+# you don't need to declare the argument name, R can figure that out for you
+
+```{r}
+round(3.14159, 2)
+```
+
+
+## Vectors and data types
+
+A vector of doubles
+
+```{r}
+counts <- c(1, 2, 3, 100)
+counts
+```
+
+A vector of character
+
+```{r}
+x <- c("alexandrium", "dinophysis", "pseudo_nitzchia")
+x
+```
+
+
+```{r}
+class(counts)
+class(species)
+```
+
+```{r}
+numbers <- c("1", "2", "3")
+class(numbers)
+```
+
+R also has a "date" class
+
+```{r}
+today <- "2022-12-07"
+```
+
+
+
+```{r}
+class(today)
+```
+
+
+We can use the function `as.Date()` to change to date class
+```{r}
+today <- as.Date(today)
+class(today)
+```
+
+[Date Formats in R](https://www.r-bloggers.com/2013/08/date-formats-in-r/)
+```{r}
+format(today, format="%A") #day of week
+format(today, format="%B") #month
+format(today, format="%U") #week of year
+```
+
+
+```{r}
+Sys.Date()
+class(Sys.Date())
+```
+
+
+The logical class is used to store binary variables i.e. true or false,
+
+```{r}
+present <- TRUE
+class(present)
+```
+
+
+```{r}
+length(counts)
+length(species)
+```
+
+```{r}
+2 * counts
+```
+
+
+```{r}
+new_counts <- counts + species
+new_counts
+```
+
+
+```{r}
+class(counts)
+class(species)
+```
+
+```{r}
+str(counts)
+str(species)
+```
+
+```{r}
+counts <- c(counts, 4) # adding at the end
+counts <- c(0, counts) # adding at the beginning
+counts
+```
+
+
+```{r}
+counts[3]
+```
+
+
+
+```{r}
+counts[-1]
+```
+
+```{r}
+mean(counts)
+```
+
+
+```{r}
+sd(counts)
+```
+
+```{r}
+sessionInfo()
+```
+

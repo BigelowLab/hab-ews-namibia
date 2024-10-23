@@ -1,5 +1,8 @@
 ---
-format: pdf
+title: "Phytoplankton Report (example)"
+author: "Johnathan Evanilla"
+date: "10/28/2024"
+output: pdf_document
 ---
 
 ![](namibia_coa_wikipedia.png){fig-align="center"}
@@ -8,7 +11,7 @@ format: pdf
 
 ## MINISTRY OF FISHERIES AND MARINE RESOURCES
 
-Directorate of Aquaculture
+Directorate of Aquaculture 
 
 Enquiries: H. Skrypzeck
 
@@ -30,7 +33,7 @@ Walvis Bay
 
 Namibia
 
-## Phytoplankton Summary
+## Phytoplankton Summary - ```Sys.Date()```
 
 ```{r}
 #| include=FALSE
@@ -69,11 +72,13 @@ options(knitr.kable.NA = '') # what is another way to set this option?
 diatoms <- z |>
   distinct() |>
   filter(Groups %in% c("Diatom", "Diatoms")) |>
-  mutate(`Cells/L` = round(`Cells/L`)) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         `Date Collected` = format(`Date Collected`, format="%d-%b-%y")) |>
   select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
   rename("Sampling Date" = "Date Collected", 
          "Species" = "Specie", 
-         "Potential Toxin" = "Toxin producing species")
+         "Potential Toxin" = "Toxin producing species") |>
+  arrange(desc(`Cells/L`))
 
 diatoms[nrow(diatoms)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(diatoms$`Cells/L`), "Diatoms")
 
@@ -87,11 +92,13 @@ kable(diatoms)
 dinos <- z |>
   distinct() |>
   filter(Groups %in% c("Dinoflagellates")) |>
-  mutate(`Cells/L` = round(`Cells/L`)) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         `Date Collected` = format(`Date Collected`, format="%d-%b-%y")) |>
   select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
   rename("Sampling Date" = "Date Collected", 
          "Species" = "Specie", 
-         "Potential Toxin" = "Toxin producing species")
+         "Potential Toxin" = "Toxin producing species") |>
+  arrange(desc(`Cells/L`))
 
 dinos[nrow(dinos)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(dinos$`Cells/L`), "Dinoflagellates")
 
@@ -105,11 +112,13 @@ kable(dinos)
 zoop <- z |>
   distinct() |>
   filter(Groups %in% c("Zooplankton")) |>
-  mutate(`Cells/L` = round(`Cells/L`)) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         `Date Collected` = format(`Date Collected`, format="%d-%b-%y")) |>
   select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
   rename("Sampling Date" = "Date Collected", 
          "Species" = "Specie", 
-         "Potential Toxin" = "Toxin producing species")
+         "Potential Toxin" = "Toxin producing species") |>
+  arrange(desc(`Cells/L`))
 
 zoop[nrow(zoop)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(zoop$`Cells/L`), "Zooplankton")
 
