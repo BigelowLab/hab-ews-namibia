@@ -30,11 +30,35 @@ source("setup.R")
 ```
 
 
+## Workshop Plan
+
+Programming Introduction
+
+Data Analysis and Visualization
+
+Automated Reports
+
+
 ## Resources
 
-[Quarto Documentation](https://quarto.org/)
+### R & RStudio:
+
+[base R cheatsheet](https://rstudio.github.io/cheatsheets/base-r.pdf)
+
+[RStudio](https://rstudio.github.io/cheatsheets/html/rstudio-ide.html)
+
+
+### R Packages:
 
 [dplyr](https://rstudio.github.io/cheatsheets/html/data-transformation.html) Data manipulation
 
 [ggplot2](https://rstudio.github.io/cheatsheets/html/data-visualization.html) Data visualization 
 
+[readr + readxl](https://rstudio.github.io/cheatsheets/html/data-import.html)
+
+
+### Other tools:
+
+[R markdown](https://rstudio.github.io/cheatsheets/html/rmarkdown.html)
+
+[git and Github](https://rstudio.github.io/cheatsheets/git-github.pdf)

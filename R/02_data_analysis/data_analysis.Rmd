@@ -281,6 +281,12 @@ y <- al |>
 y
 ```
 
+```{r}
+ggplot(data = al, aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line()
+```
+
+
 Here's a line plot of *Alexandrium* abundance at one site during one year
 
 ```{r}
@@ -289,11 +295,34 @@ ggplot(y, aes(x=`Date Collected`, y = `Cells/L`)) +
 ```
 
 
+
 ```{r}
 ggplot(data=al, aes(x=week, y=Station, fill=`Cells/L`)) +
   geom_tile() +
   scale_fill_viridis_b() +
   theme_bw()
+```
+
+
+We can use `facet_wrap()` or `facet_grid()` to make multiple plots based on a grouping variable in our data
+
+
+```{r}
+al |>
+  filter(Station %in% c("Production Area 1", "Production Area 2", "Production Area 3")) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  facet_wrap(vars(Station))
+```
+
+The code above produces a warning because every station doesn't have data
+
+```{r}
+al |>
+  filter(Station %in% c("Production Area 1", "Production Area 2", "Production Area 3")) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  facet_wrap(vars(Station))
 ```
 
 # *Dinophysis* data

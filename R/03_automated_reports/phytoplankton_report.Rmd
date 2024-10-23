@@ -1,11 +1,23 @@
 ---
-title: "Phytoplankton Report (example)"
-author: "Johnathan Evanilla"
-date: "10/28/2024"
 output: pdf_document
+params:
+  my_date: "2022-02-07"
+  production_area: "Production Area 2"
 ---
 
-![](namibia_coa_wikipedia.png){fig-align="center"}
+
+```{r}
+#| include=FALSE
+library(readxl)
+library(dplyr)
+library(knitr)
+```
+
+```{r, echo=FALSE, fig.align='center'}
+include_graphics("namibia_coa_wikipedia.png")
+```
+
+
 
 ## REPUBLIC OF NAMIBIA
 
@@ -27,36 +39,28 @@ Namibia
 
 ## Namibian Shellfish Sanitation and Biotoxin Monitoring Program
 
-## Aquapark 1
+## `r params$production_area`
 
 Walvis Bay
 
 Namibia
 
-## Phytoplankton Summary - ```Sys.Date()```
+## Phytoplankton Summary - `r Sys.Date()`
 
-```{r}
-#| include=FALSE
-library(readxl)
-library(dplyr)
-library(knitr)
-```
-
-```{r}
-#| include=FALSE
+```{r include=FALSE}
 file <- file.path("~/Documents/Bigelow/data/Qry_Phytoplankton Total Cell_L DATA.XLSX")
-data <- read_excel(file)
+data <- read_excel(file) |>
+  mutate(date = as.Date(`Date Collected`, format="%Y-%m-%d"))
 ```
 
-```{r}
-#| include=FALSE
+
+```{r include=FALSE}
 z <- data |>
-  filter(`Date Collected` == max(`Date Collected`),
-         Station %in% c("Production Area 1", "Production Area 2"))
+  filter(date == as.Date(params$my_date),
+         Station == params$production_area)
 ```
 
-```{r}
-#| include=FALSE
+```{r include=FALSE}
 z |>
   distinct() |>
   group_by(Groups) |>
@@ -65,8 +69,7 @@ z |>
 
 ### Diatoms
 
-```{r}
-#| echo=FALSE
+```{r echo=FALSE}
 options(knitr.kable.NA = '') # what is another way to set this option?
 
 diatoms <- z |>
@@ -87,8 +90,7 @@ kable(diatoms)
 
 ### Dinoflagellates
 
-```{r}
-#| echo=FALSE
+```{r echo=FALSE}
 dinos <- z |>
   distinct() |>
   filter(Groups %in% c("Dinoflagellates")) |>
@@ -107,8 +109,7 @@ kable(dinos)
 
 ### Zooplankton
 
-```{r}
-#| echo=FALSE
+```{r echo=FALSE}
 zoop <- z |>
   distinct() |>
   filter(Groups %in% c("Zooplankton")) |>

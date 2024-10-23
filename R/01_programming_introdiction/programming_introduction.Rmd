@@ -1,8 +1,8 @@
 ---
 title: "Introduction to Programming"
-output:
-  ioslides_presentation: default
-  slidy_presentation: default
+author: "Johnathan Evanilla"
+date: "10/28/2024"
+output: github_document
 ---
 
 ## Welcome
@@ -16,14 +16,6 @@ output:
 - Text Editor Pane
 
 - File Browser Pane
-
-
-## What is a package?
-
-
-Content adapted from https://datacarpentry.org/R-genomics/01-intro-to-R.html
-
-[Base R cheat sheet](https://iqss.github.io/dss-workshops/R/Rintro/base-r-cheat-sheet.pdf)
 
 
 ### Hello World!
@@ -125,8 +117,8 @@ counts
 A vector of character
 
 ```{r}
-x <- c("alexandrium", "dinophysis", "pseudo_nitzchia")
-x
+species <- c("alexandrium", "dinophysis", "pseudo_nitzchia")
+species
 ```
 
 
@@ -190,10 +182,10 @@ length(species)
 2 * counts
 ```
 
+Notice that you can't add character and numeric vectors together
 
 ```{r}
-new_counts <- counts + species
-new_counts
+# counts + species
 ```
 
 
@@ -236,4 +228,8 @@ sd(counts)
 ```{r}
 sessionInfo()
 ```
+
+
+Content adapted from https://datacarpentry.org/R-genomics/01-intro-to-R.html
+
 
