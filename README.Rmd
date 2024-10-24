@@ -61,4 +61,6 @@ Automated Reports
 
 [R markdown](https://rstudio.github.io/cheatsheets/html/rmarkdown.html)
 
+[R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/)
+
 [git and Github](https://rstudio.github.io/cheatsheets/git-github.pdf)

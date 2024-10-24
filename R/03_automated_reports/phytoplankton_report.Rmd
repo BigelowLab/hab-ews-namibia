@@ -5,7 +5,6 @@ params:
   production_area: "Production Area 2"
 ---
 
-
 ```{r}
 #| include=FALSE
 library(readxl)
@@ -17,13 +16,12 @@ library(knitr)
 include_graphics("namibia_coa_wikipedia.png")
 ```
 
-
-
 ## REPUBLIC OF NAMIBIA
 
 ## MINISTRY OF FISHERIES AND MARINE RESOURCES
 
-Directorate of Aquaculture 
+
+Directorate of Aquaculture
 
 Enquiries: H. Skrypzeck
 
@@ -37,7 +35,9 @@ Swakopmund
 
 Namibia
 
+
 ## Namibian Shellfish Sanitation and Biotoxin Monitoring Program
+
 
 ## `r params$production_area`
 
@@ -45,14 +45,19 @@ Walvis Bay
 
 Namibia
 
-## Phytoplankton Summary - `r Sys.Date()`
+Report Date: `r Sys.Date()`
+
+Report Author: 
+
+\pagebreak
+
+## Phytoplankton Summary
 
 ```{r include=FALSE}
 file <- file.path("~/Documents/Bigelow/data/Qry_Phytoplankton Total Cell_L DATA.XLSX")
 data <- read_excel(file) |>
   mutate(date = as.Date(`Date Collected`, format="%Y-%m-%d"))
 ```
-
 
 ```{r include=FALSE}
 z <- data |>

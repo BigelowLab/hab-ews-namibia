@@ -1,7 +1,6 @@
 #' Retrieves a table of location information for HAB monitoring stations
 #' @return tibble of locations
 get_stations <- function() {
-  
   dplyr::tribble(
     ~station_id,  ~station,               ~lat,       ~lon,
     "pa1",        "Production Area 1",    -22.9205,   14.46789,
@@ -15,9 +14,12 @@ get_stations <- function() {
   )
 }
 
-get_region <- function() {
+
+get_regions <- function() {
   dplyr::tribble(
-    ~name,       ~xmin,   ~xmax,    ~ymin,  ~ymax,    ~longname,
-    "namibia",   10,      25,       15,     30,       "Namibia Coast",
+    ~name,       ~xmin,   ~ymin,    ~xmax,  ~ymax,    ~longname,
+    "namibia",   10,      -30,       25,     -15,       "Namibia Coast",
+    "wb",        14.4,    -22.9,     14.48,  -23.0,     "Walvis Bay",
+    "lz",        15.1,    -26.7,     15.2,  -26.60,     "Luderitz"
   )
 }
