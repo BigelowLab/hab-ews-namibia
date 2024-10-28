@@ -136,11 +136,6 @@ x |>
 
 `filter()` is for getting a subset of rows based on a condition
 
-```{r}
-x |>
-  mutate(Groups = tolower(Groups))
-```
-
 
 ```{r}
 x |>
@@ -165,6 +160,12 @@ x |>
 ### Mutating new columns
 
 `mutate()` - change or make new columns 
+
+```{r}
+x |>
+  mutate(Groups = tolower(Groups))
+```
+
 
 ```{r}
 x |>
