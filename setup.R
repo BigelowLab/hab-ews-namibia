@@ -12,5 +12,3 @@ for (package in cran_packages[!ix]) {
 suppressPackageStartupMessages({
   for (package in cran_packages) library(package, character.only = TRUE)
 })
-
-source("R/stations.R")

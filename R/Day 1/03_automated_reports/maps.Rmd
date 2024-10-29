@@ -3,8 +3,8 @@ title: "Maps"
 author: "Johnathan Evanilla"
 date: "10/28/2024"
 output:
-  github_document:
   pdf_document:
+  github_document:
 ---
 
 

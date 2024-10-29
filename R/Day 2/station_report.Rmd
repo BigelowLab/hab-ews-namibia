@@ -1,0 +1,61 @@
+---
+output: pdf_document
+params:
+  station: "Aquapark 4"
+---
+
+
+```{r echo=FALSE}
+x <- read_excel("~/Documents/Bigelow/data/namibia/Qry_Aquapark 4 (Four).xlsx") |>
+  mutate(month = format(`Date Collected`, format="%m"),
+         week = format(`Date Collected`, format="%U"),
+         year = format(`Date Collected`, format="%Y"),
+         date = as.Date(`Date Collected`, format="%Y-%m-%d")) |>
+  filter(Station %in% c("Aquapark 4", "Aquapark 4 (112)", "Aquapark 4 112"))
+```
+
+# *Dinophysis spp*
+
+```{r echo=FALSE}
+x |>
+  filter(Specie %in% c("Dinophysis sp.", "Dinophysis rotundata", "Dinophysis fortii", "Dinophysis acuminata")) |>
+  group_by(year, month) |>
+  summarise(mean_abundance = mean(`Cells/L`)) |>
+  ggplot(aes(x=month, y=year, fill=mean_abundance)) +
+  geom_tile() +
+  scale_fill_viridis_b()
+```
+
+
+# *Alexandrium spp*
+
+
+```{r echo=FALSE}
+x |>
+  filter(Specie %in% c("Alexandrium Tamarense", "Alexandrium acatenella", "Alexandrium catenella", 
+                       "Alexandrium minitum", "Alexandrium minutum", "Alexandrium sp.")) |>
+  group_by(year, month) |>
+  summarise(mean_abundance = mean(`Cells/L`)) |>
+  ggplot(aes(x=month, y=year, fill=mean_abundance)) +
+  geom_tile() +
+  scale_fill_viridis_b()
+```
+
+
+
+# *Pseudo-nitzschia spp*
+
+
+
+```{r echo=FALSE}
+x |>
+  filter(Specie %in% c("Pseudo-nitzschia sp.", "Pseudo-nitzschia seriata gr.", "Pseudo-nitzschia delicatissima gr.",
+                       "Pseudo-nitzschia seriata", "Pseudo-nitzschia delicatissima gr. L20 W2 O2",
+                       "Pseudo-nitzschia seriata gr. L35 W3 O3", "Pseudo-nitzschia seriata gr. L40 W3 O4")) |>
+  group_by(year, month) |>
+  summarise(mean_abundance = mean(`Cells/L`)) |>
+  ggplot(aes(x=month, y=year, fill=mean_abundance)) +
+  geom_tile() +
+  scale_fill_viridis_b()
+```
+

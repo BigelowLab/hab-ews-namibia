@@ -1,0 +1,250 @@
+---
+output: pdf_document
+params:
+  date: "2022-02-07"
+  station: "Aquapark 4"
+---
+
+```{r include=FALSE}
+suppressPackageStartupMessages({
+  library(readxl)
+  library(ggplot2)
+  library(dplyr)
+  
+  library(sf)
+  library(rnaturalearth)
+  library(leaflet)
+  library(knitr)
+})
+```
+
+
+```{r, echo=FALSE, fig.align='center'}
+include_graphics("namibia_coa_wikipedia.png")
+```
+
+## REPUBLIC OF NAMIBIA
+
+## MINISTRY OF FISHERIES AND MARINE RESOURCES
+
+
+Directorate of Aquaculture
+
+Enquiries: H. Skrypzeck
+
+Tel: (+264 64) 4101000
+
+Fax: (+264 64) 404385
+
+P O Box 912
+
+Swakopmund
+
+Namibia
+
+
+## Namibian Shellfish Sanitation and Biotoxin Monitoring Program
+
+
+## `r params$production_area`
+
+Walvis Bay
+
+Namibia
+
+Report Date: `r Sys.Date()`
+
+Report Author: 
+
+\pagebreak
+
+
+
+```{r include=FALSE}
+x <- read_excel("~/Documents/Bigelow/data/namibia/Qry_Aquapark 4 (Four).xlsx") |>
+  mutate(month = format(`Date Collected`, format="%m"),
+         week = format(`Date Collected`, format="%U"),
+         year = format(`Date Collected`, format="%Y"),
+         date = as.Date(`Date Collected`, format="%Y-%m-%d")) |>
+  filter(between(date, as.Date(params$date)-365, as.Date(params$date)),
+         Station == params$station)
+```
+
+
+```{r include=FALSE}
+z <- x |>
+  filter(date == as.Date(params$date))
+```
+
+
+
+### Diatoms
+
+```{r echo=FALSE}
+diatoms <- z |>
+  distinct() |>
+  filter(Groups %in% c("Diatom", "Diatoms")) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         `Date Collected` = format(`Date Collected`, format="%d-%b-%y")) |>
+  select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
+  rename("Sampling Date" = "Date Collected", 
+         "Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species") |>
+  arrange(desc(`Cells/L`))
+```
+
+
+
+```{r echo=FALSE}
+ggplot(diatoms, aes(y=Species, x=`Cells/L`)) + 
+  geom_col()
+```
+
+
+```{r echo=FALSE}
+x |>
+  filter(Specie == "Pseudo-nitzschia sp.") |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  geom_hline(yintercept = 1000, linetype="dashed", color="red")
+```
+
+
+```{r echo=FALSE}
+x |>
+  filter(Specie %in% unique(diatoms$Species)) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  geom_hline(yintercept = 1000, linetype="dashed", color="red") +
+  facet_wrap(vars(Specie), scales="free")
+```
+
+
+```{r echo=FALSE}
+options(knitr.kable.NA = '') # what is another way to set this option?
+
+diatoms[nrow(diatoms)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(diatoms$`Cells/L`), "Diatoms")
+
+kable(diatoms)
+
+```
+
+
+\pagebreak
+
+### Dinoflagellates
+
+```{r echo=FALSE}
+dinos <- z |>
+  distinct() |>
+  filter(Groups %in% c("Dinoflagellates")) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         `Date Collected` = format(`Date Collected`, format="%d-%b-%y")) |>
+  select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
+  rename("Sampling Date" = "Date Collected", 
+         "Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species") |>
+  arrange(desc(`Cells/L`))
+```
+
+
+```{r echo=FALSE}
+ggplot(dinos, aes(y=Species, x=`Cells/L`)) + 
+  geom_col()
+```
+
+```{r echo=FALSE}
+x |>
+  filter(Specie %in% c("Alexandrium sp.")) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  geom_hline(yintercept = 1000, linetype="dashed", color="red")
+```
+
+```{r echo=FALSE}
+x |>
+  filter(Specie %in% unique(dinos$Species)) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  geom_hline(yintercept = 1000, linetype="dashed", color="red") +
+  facet_wrap(vars(Specie), scales="free")
+```
+
+```{r echo=FALSE}
+dinos[nrow(dinos)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(dinos$`Cells/L`), "Dinoflagellates")
+
+kable(dinos)
+```
+
+
+\pagebreak
+
+### Zooplankton
+
+```{r echo=FALSE}
+zoop <- z |>
+  distinct() |>
+  filter(Groups %in% c("Zooplankton")) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         `Date Collected` = format(`Date Collected`, format="%d-%b-%y")) |>
+  select(all_of(c("Date Collected", "Specie", "Toxin producing species", "Cells/L", "Groups"))) |>
+  rename("Sampling Date" = "Date Collected", 
+         "Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species") |>
+  arrange(desc(`Cells/L`))
+
+zoop[nrow(zoop)+1,] = data.frame(NA, NA, "Total Cells/L =", sum(zoop$`Cells/L`), "Zooplankton")
+
+kable(zoop)
+```
+
+*Please note: Some of the phytoplankton from the genera Dinophysis and Pseudo-nitzschia can potentially produce biotoxins. The biotoxin produced by the particular species is indicated in the "Potential Toxin" column, however this does not mean that the toxin is present. Only biotoxin tests can confirm the presence or absence of toxin.*
+
+
+```{r include=FALSE}
+species <- count(z, Specie) |>
+  arrange(desc(n))
+```
+
+Station Map
+
+```{r echo=FALSE}
+source("stations.R")
+```
+
+
+```{r include=FALSE, echo=FALSE}
+s <- get_stations()
+
+s_wb <- s[1:4,] |>
+  sf::st_as_sf(coords=c("lon", "lat"), crs=4326)
+```
+
+
+```{r warning=FALSE, echo=FALSE}
+nam <- ne_countries(scale = "large", returnclass = "sf", country = "Namibia") |>
+  st_geometry()
+
+coast = ne_coastline(scale = "large", returnclass = 'sf') |>
+  st_geometry() 
+
+bb <- st_bbox(c(xmin = 14, ymin = -22.9, xmax = 14.6, ymax = -23.0)) |>
+  st_as_sfc()
+
+wb <- st_crop(nam, bb)
+
+ggplot(data = wb) +
+  geom_sf(fill = "antiquewhite") +
+  geom_sf(data = s_wb) +
+  geom_sf_text(data=s_wb, aes(label=station_id), nudge_y=0.005) +
+  theme_bw()
+```
+
+
+```{r echo=FALSE}
+leaflet(data=s[1:4,]) |> 
+  addTiles() |>
+  addCircleMarkers(~lon, ~lat, popup=~htmltools::htmlEscape(station))
+```
+
+

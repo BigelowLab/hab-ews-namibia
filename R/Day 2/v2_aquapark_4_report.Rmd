@@ -1,0 +1,234 @@
+---
+output: pdf_document
+params:
+  sample_date: "2022-02-07"
+  station: "Aquapark 4"
+  author: "Johnathan Evanilla"
+  alexandrium_threshold: 200
+  dinophysis_threshold: 1000
+  pseudo_nitzshia_threshold: 20000
+---
+
+```{r include=FALSE}
+suppressPackageStartupMessages({
+  library(readxl)
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(forcats)
+  
+  library(sf)
+  library(rnaturalearth)
+  library(leaflet)
+  library(knitr)
+  library(kableExtra)
+})
+```
+
+
+```{r, echo=FALSE, fig.align='center'}
+# adds coat of arms to report
+include_graphics(path = "MFMRlogoNew.png")
+```
+
+
+## REPUBLIC OF NAMIBIA
+
+## MINISTRY OF FISHERIES AND MARINE RESOURCES
+
+
+
+Directorate of Aquaculture
+
+Enquiries: H. Skrypzeck
+
+Tel: (+264 64) 4101000
+
+Fax: (+264 64) 404385
+
+P O Box 912
+
+Swakopmund
+
+Namibia
+
+
+## Namibian Shellfish Sanitation Program
+
+
+Sampling area:  `r params$station`
+
+Sampling date: `r params$sample_date`
+
+Report Date: `r Sys.Date()`
+
+Report Author: `r params$author`
+
+
+
+Forecast section
+
+map with colors or symbols
+
+
+\pagebreak
+
+
+
+```{r include=FALSE}
+# load phytoplankton data
+
+x <- read_excel("~/Documents/Bigelow/data/namibia/Qry_Aquapark 4 (Four).xlsx") |>
+  mutate(month = format(`Date Collected`, format="%m"),
+         week = format(`Date Collected`, format="%U"),
+         year = format(`Date Collected`, format="%Y"),
+         date = as.Date(`Date Collected`, format="%Y-%m-%d")) |>
+  filter(between(date, as.Date(params$sample_date)-365, as.Date(params$sample_date)),
+         Station == params$station)
+```
+
+
+```{r echo=FALSE}
+environment <- read_excel("~/Documents/Bigelow/data/namibia/Mariculture multi-meter raw data.xlsx") |>
+  mutate(date = as.Date(`Sampling date`, format="%Y-%m-%d")) |>
+  filter(date == as.Date(params$sample_date),
+         Station == params$station)
+```
+
+```{r echo=FALSE}
+nutrient <- read_excel("~/Documents/Bigelow/data/namibia/Nutrients_data_EWS2024.xlsx", skip=1)
+```
+
+
+```{r include=FALSE}
+z <- x |>
+  filter(date == as.Date(params$sample_date))
+```
+
+
+
+## Phytoplankton Summary
+
+```{r echo=FALSE}
+diatoms <- z |>
+  distinct() |>
+  filter(Groups %in% c("Diatom", "Diatoms")) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         threshold = c(NA, NA, NA, NA, NA, NA, NA, NA, NA)) |>
+  select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold"))) |>
+  rename("Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species",
+         "Threshold Alert" = "threshold") |>
+  arrange(desc(`Cells/L`))
+```
+
+
+```{r echo=FALSE}
+options(knitr.kable.NA = '') # what is another way to set this option?
+
+diatoms[nrow(diatoms)+1,] = data.frame(NA, "Total Cells/L =", sum(diatoms$`Cells/L`), NA)
+
+kable(diatoms, caption = "Diatoms", padding=10)
+```
+
+
+```{r echo=FALSE}
+dinos <- z |>
+  distinct() |>
+  filter(Groups %in% c("Dinoflagellates")) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         threshold = c("THRESHOLD EXCEEDED", NA, NA, NA, NA, NA)) |>
+  select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold"))) |>
+  rename("Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species",
+         "Threshold Alert" = "threshold") |>
+  arrange(desc(`Cells/L`))
+```
+
+
+```{r echo=FALSE}
+dinos[nrow(dinos)+1,] = data.frame(NA, "Total Cells/L =", sum(dinos$`Cells/L`), NA)
+
+kable(dinos, caption = "Dinoflagellates", padding=10)
+```
+
+
+
+```{r echo=FALSE}
+ggplot(diatoms[1:9,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`)) + 
+  geom_col() +
+  ylab("Species") +
+  labs(title = "Diatom Cell Abundance")
+```
+
+
+```{r echo=FALSE}
+ggplot(dinos[1:6,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`, fill=`Threshold Alert`)) + 
+  geom_col() + 
+  guides(fill="none") +
+  ylab("Species") +
+  labs(title = "Dinoflagellate Cell Abundance")
+```
+
+
+
+
+\pagebreak
+
+
+
+
+
+
+```{r echo=FALSE}
+x |>
+  filter(Specie %in% c("Alexandrium sp.")) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  geom_hline(yintercept = 1000, linetype="dashed", color="red")
+```
+
+
+
+
+
+
+\pagebreak
+
+## Environment
+
+```{r echo=FALSE}
+e <- environment[4:12] |>
+  rename("Resistivity (O m)" = `Resistivity (Ω⋅m)`)
+
+pivot_longer(e, cols = colnames(e)) |>
+  kable(padding=50)
+```
+
+
+## Nutrient
+
+```{r echo=FALSE}
+#nutrient |>
+#  filter(Date == params$sample_date)
+
+tribble(
+  ~name,       ~value,
+  "Nitrate",   nutrient$Nitrate[[1]],
+  "Phosphate", nutrient$Phosphate[[1]],
+  "Silicate",  nutrient$Silcate[[1]]
+) |>
+  kable(padding=80)
+```
+
+
+## Forecast
+
+*Alexandrium sp.* cell abundance at Aquapark 4 was measued above the alert threshold this week. Growers are advised to take caution when harvesting due to increased risk of PST accumulation. 
+
+
+
+
+\textcolor{red}{Please note: Some of the phytoplankton from the genera Dinophysis and Pseudo-nitzschia can potentially produce biotoxins. The biotoxin produced by the particular species is indicated in the "Potential Toxin" column, however this does not mean that the toxin is present. Only biotoxin tests can confirm the presence or absence of toxin.}
+
+

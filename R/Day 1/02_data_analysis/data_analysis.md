@@ -14,7 +14,7 @@ Set your path to the “Qry_Phytoplankton Total Cell_L DATA.XLSX”
 spreadsheet in quotes below:
 
 ``` r
-my_path <- file.path("~/Documents/Bigelow/data/Qry_Phytoplankton Total Cell_L DATA.XLSX")
+my_path <- file.path("Qry_Phytoplankton Total Cell_L DATA.XLSX")
 ```
 
 The package `readxl` provides tools for reading excel files (ie .xls and
@@ -304,28 +304,6 @@ x |>
 
 ``` r
 x |>
-  mutate(Groups = tolower(Groups))
-```
-
-    ## # A tibble: 16,459 × 9
-    ##    `Date Collected`    Station           Depth   Specie      `Microscope fields`
-    ##    <dttm>              <chr>             <chr>   <chr>                     <dbl>
-    ##  1 2022-02-07 00:00:00 Production Area 2 surface Stephanopy…                   2
-    ##  2 2022-02-07 00:00:00 Production Area 2 surface Striatella…                   2
-    ##  3 2022-02-07 00:00:00 Production Area 2 surface Synedra sp                    2
-    ##  4 2022-02-07 00:00:00 Production Area 2 surface Thalassios…                   2
-    ##  5 2022-02-07 00:00:00 Production Area 2 surface Actinocycl…                   2
-    ##  6 2022-02-07 00:00:00 Production Area 2 surface Alexandriu…                   2
-    ##  7 2022-02-07 00:00:00 Production Area 2 surface Cylindroth…                   2
-    ##  8 2022-02-07 00:00:00 Production Area 2 surface Diplopsali…                   2
-    ##  9 2022-02-07 00:00:00 Production Area 2 surface Gymnodiniu…                   2
-    ## 10 2022-02-07 00:00:00 Production Area 2 surface Navicula s…                   2
-    ## # ℹ 16,449 more rows
-    ## # ℹ 4 more variables: `SumOfTransect Count` <dbl>, `Cells/L` <dbl>,
-    ## #   Groups <chr>, `Toxin producing species` <chr>
-
-``` r
-x |>
   filter(`Cells/L` < 100)
 ```
 
@@ -397,6 +375,28 @@ x |>
 ### Mutating new columns
 
 `mutate()` - change or make new columns
+
+``` r
+x |>
+  mutate(Groups = tolower(Groups))
+```
+
+    ## # A tibble: 16,459 × 9
+    ##    `Date Collected`    Station           Depth   Specie      `Microscope fields`
+    ##    <dttm>              <chr>             <chr>   <chr>                     <dbl>
+    ##  1 2022-02-07 00:00:00 Production Area 2 surface Stephanopy…                   2
+    ##  2 2022-02-07 00:00:00 Production Area 2 surface Striatella…                   2
+    ##  3 2022-02-07 00:00:00 Production Area 2 surface Synedra sp                    2
+    ##  4 2022-02-07 00:00:00 Production Area 2 surface Thalassios…                   2
+    ##  5 2022-02-07 00:00:00 Production Area 2 surface Actinocycl…                   2
+    ##  6 2022-02-07 00:00:00 Production Area 2 surface Alexandriu…                   2
+    ##  7 2022-02-07 00:00:00 Production Area 2 surface Cylindroth…                   2
+    ##  8 2022-02-07 00:00:00 Production Area 2 surface Diplopsali…                   2
+    ##  9 2022-02-07 00:00:00 Production Area 2 surface Gymnodiniu…                   2
+    ## 10 2022-02-07 00:00:00 Production Area 2 surface Navicula s…                   2
+    ## # ℹ 16,449 more rows
+    ## # ℹ 4 more variables: `SumOfTransect Count` <dbl>, `Cells/L` <dbl>,
+    ## #   Groups <chr>, `Toxin producing species` <chr>
 
 ``` r
 x |>
@@ -519,6 +519,10 @@ arrange(x, desc(`Cells/L`))
     ## #   Groups <chr>, `Toxin producing species` <chr>, month <chr>, week <chr>,
     ## #   year <chr>
 
+``` r
+sp <- count(x, Specie)
+```
+
 # *Alexandrium* data
 
 ``` r
@@ -574,7 +578,7 @@ We can make histograms using `hist()`
 hist(al$`Cells/L`)
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 The breaks argument lets us specify number of breaks in the plot
 
@@ -582,7 +586,7 @@ The breaks argument lets us specify number of breaks in the plot
 hist(al$`Cells/L`, breaks=25)
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 Log-scaled histogram
 
@@ -590,7 +594,7 @@ Log-scaled histogram
 hist(log10(al$`Cells/L`+1))
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 The `plot()` function can be used for simple plotting of two variables
 
@@ -598,7 +602,7 @@ The `plot()` function can be used for simple plotting of two variables
 plot(`Cells/L`~month, data=al)
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 ## Plotting with `ggplot2`
 
@@ -608,14 +612,14 @@ the `+` operator to add features to it
 Here’s the same plot as above but made with `ggplot2`
 
 ``` r
-ggplot(data=al, aes(x=month, y=`Cells/L`)) +
+ggplot(data=al, aes(x=week, y=`Cells/L`)) +
   geom_point(alpha=0.3)
 ```
 
     ## Warning: Removed 1 row containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 We can make a subset table of the data to use in plots that focus on
 more specific data
@@ -654,6 +658,13 @@ y
     ## #   Groups <chr>, `Toxin producing species` <chr>, month <chr>, week <chr>,
     ## #   year <chr>
 
+``` r
+ggplot(data = al, aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line()
+```
+
+![](data_analysis_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+
 Here’s a line plot of *Alexandrium* abundance at one site during one
 year
 
@@ -662,7 +673,7 @@ ggplot(y, aes(x=`Date Collected`, y = `Cells/L`)) +
   geom_line()
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 ``` r
 ggplot(data=al, aes(x=week, y=Station, fill=`Cells/L`)) +
@@ -671,7 +682,33 @@ ggplot(data=al, aes(x=week, y=Station, fill=`Cells/L`)) +
   theme_bw()
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+
+We can use `facet_wrap()` or `facet_grid()` to make multiple plots based
+on a grouping variable in our data
+
+``` r
+al |>
+  filter(Station %in% c("Production Area 1", "Production Area 2", "Production Area 3")) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  facet_wrap(vars(Station))
+```
+
+![](data_analysis_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+
+The code above produces a warning because every station doesn’t have
+data
+
+``` r
+al |>
+  filter(Station %in% c("Production Area 1", "Production Area 2", "Production Area 3")) |>
+  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
+  geom_line() +
+  facet_wrap(vars(Station))
+```
+
+![](data_analysis_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 # *Dinophysis* data
 
@@ -705,19 +742,19 @@ count(dn, Station)
 hist(dn$`Cells/L`)
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 ``` r
 hist(log10(dn$`Cells/L`))
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
 
 ``` r
 plot(`Cells/L`~month, data=dn)
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
 
 ``` r
 ggplot(data=dn, aes(x=week, y=Station, fill=`Cells/L`)) +
@@ -726,7 +763,7 @@ ggplot(data=dn, aes(x=week, y=Station, fill=`Cells/L`)) +
   theme_bw()
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
 
 # *Pseudo-nitzschia* data
 
@@ -738,7 +775,7 @@ pn <- filter(x, Specie %in% c("Pseudo-nitzschia sp.", "Pseudo-nitzschia spp.", "
 plot(`Cells/L`~month, data=pn)
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
 
 ``` r
 ggplot(data=pn, aes(x=`Date Collected`, y=Station, fill=`Cells/L`)) +
@@ -747,7 +784,7 @@ ggplot(data=pn, aes(x=`Date Collected`, y=Station, fill=`Cells/L`)) +
   theme_bw()
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
 
 ``` r
 x |>
@@ -756,4 +793,4 @@ x |>
   geom_tile()
 ```
 
-![](data_analysis_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+![](data_analysis_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->

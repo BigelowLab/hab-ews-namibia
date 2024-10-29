@@ -23,7 +23,7 @@ R comes with lots of great tools out of the box, but there are others that peopl
 Set your path to the "Qry_Phytoplankton Total Cell_L DATA.XLSX" spreadsheet in quotes below:
 
 ```{r}
-my_path <- file.path("~/Documents/Bigelow/data/Qry_Phytoplankton Total Cell_L DATA.XLSX")
+my_path <- file.path("Qry_Phytoplankton Total Cell_L DATA.XLSX")
 ```
 
 
@@ -215,6 +215,12 @@ arrange(x, desc(`Cells/L`))
 ```
 
 
+```{r}
+sp <- count(x, Specie)
+```
+
+
+
 # *Alexandrium* data
 
 
@@ -268,7 +274,7 @@ We can make plots by creating a plot object with `ggplot()`, then use the `+` op
 Here's the same plot as above but made with `ggplot2`
 
 ```{r}
-ggplot(data=al, aes(x=month, y=`Cells/L`)) +
+ggplot(data=al, aes(x=week, y=`Cells/L`)) +
   geom_point(alpha=0.3)
 ```
 
