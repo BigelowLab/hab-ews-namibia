@@ -26,9 +26,9 @@ suppressPackageStartupMessages({
 ```
 
 
-```{r, echo=FALSE, fig.align='center'}
+```{r, echo=FALSE, fig.align='center', out.width="50%", height="50%"}
 # adds coat of arms to report
-include_graphics(path = "MFMRlogoNew.png")
+include_graphics(path = "coat of Arms JPG.jpg")
 ```
 
 
@@ -66,9 +66,6 @@ Report Author: `r params$author`
 
 
 
-Forecast section
-
-map with colors or symbols
 
 
 \pagebreak
@@ -153,8 +150,10 @@ kable(dinos, caption = "Dinoflagellates", padding=10)
 ```
 
 
+\pagebreak
 
-```{r echo=FALSE}
+
+```{r echo=FALSE, fig.height=4}
 ggplot(diatoms[1:9,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`)) + 
   geom_col() +
   ylab("Species") +
@@ -162,7 +161,7 @@ ggplot(diatoms[1:9,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`)) +
 ```
 
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height=4}
 ggplot(dinos[1:6,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`, fill=`Threshold Alert`)) + 
   geom_col() + 
   guides(fill="none") +
@@ -170,6 +169,19 @@ ggplot(dinos[1:6,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`, fill=`Th
   labs(title = "Dinoflagellate Cell Abundance")
 ```
 
+\pagebreak
+
+```{r echo = FALSE}
+a <- dinos[1:6,] |> mutate(group = "Dinoflagellates")
+b <- diatoms[1:9,] |> mutate(group = "Diatoms")
+
+bind_rows(a,b) |>
+  ggplot(aes(x=`Cells/L`, y=fct_reorder(Species, `Cells/L`), , fill=`Threshold Alert`)) +
+  geom_col() +
+  guides(fill="none") +
+  ylab("Species") +
+  facet_grid(rows=vars(group), scales="free")
+```
 
 
 
@@ -178,14 +190,33 @@ ggplot(dinos[1:6,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`, fill=`Th
 
 
 
+### Biotoxin Producing Phytoplankton Trends
 
 
 ```{r echo=FALSE}
-x |>
-  filter(Specie %in% c("Alexandrium sp.")) |>
-  ggplot(aes(x=`Date Collected`, y=`Cells/L`)) +
-  geom_line() +
-  geom_hline(yintercept = 1000, linetype="dashed", color="red")
+filter(x, `Toxin producing species` == "PSP") |>
+  ggplot(aes(x=date, y=`Cells/L`)) +
+  geom_line(aes(linetype = Specie)) +
+  geom_hline(yintercept=params$alexandrium_threshold, linetype="dashed", color="red") +
+  labs(title = "Paralytic Shellfish Toxin (PST) Producing Species")
+```
+
+
+```{r echo=FALSE}
+filter(x, `Toxin producing species` == "DSP") |>
+  ggplot(aes(x=date, y=`Cells/L`)) +
+  geom_line(aes(linetype = Specie)) +
+  geom_hline(yintercept=params$dinophysis_threshold, linetype="dashed", color="red") +
+  labs(title = "Diarrhetic Shellfish Toxin (PST) Producing Species")
+```
+
+
+```{r echo=FALSE}
+filter(x, `Toxin producing species` == "ASP") |>
+  ggplot(aes(x=date, y=`Cells/L`)) +
+  geom_line(aes(linetype = Specie)) +
+  geom_hline(yintercept=params$pseudo_nitzshia_threshold, linetype="dashed", color="red") +
+  labs(title = "Amnesic Shellfish Toxin (PST) Producing Species")
 ```
 
 
@@ -222,12 +253,25 @@ tribble(
 ```
 
 
+## Biotoxin
+
+??
+
 ## Forecast
 
-*Alexandrium sp.* cell abundance at Aquapark 4 was measued above the alert threshold this week. Growers are advised to take caution when harvesting due to increased risk of PST accumulation. 
+*Alexandrium sp.* cell abundance at Aquapark 4 was measured above the alert threshold this week. Growers are advised to take caution when harvesting due to increased risk of PST accumulation. 
+
+More forecast text...
 
 
+```{r echo=FALSE, fig.height=5, fig.width=5}
+source("stations.R")
+s<- get_stations()
 
+leaflet(data=s[1:4,]) |> 
+  addTiles() |>
+  addCircleMarkers(~lon, ~lat, popup=~htmltools::htmlEscape(station))
+```
 
 \textcolor{red}{Please note: Some of the phytoplankton from the genera Dinophysis and Pseudo-nitzschia can potentially produce biotoxins. The biotoxin produced by the particular species is indicated in the "Potential Toxin" column, however this does not mean that the toxin is present. Only biotoxin tests can confirm the presence or absence of toxin.}
 
