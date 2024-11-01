@@ -4,6 +4,12 @@ params:
   station: "Aquapark 4"
 ---
 
+```{r}
+library(dplyr)
+library(ggplot2)
+library(readxl)
+```
+
 
 ```{r echo=FALSE}
 x <- read_excel("~/Documents/Bigelow/data/namibia/Qry_Aquapark 4 (Four).xlsx") |>

@@ -253,15 +253,13 @@ tribble(
 ```
 
 
-## Biotoxin
+## Biotoxin (future component)
 
-??
 
-## Forecast
 
-*Alexandrium sp.* cell abundance at Aquapark 4 was measured above the alert threshold this week. Growers are advised to take caution when harvesting due to increased risk of PST accumulation. 
+## Forecast (future component)
 
-More forecast text...
+example: *Alexandrium sp.* cell abundance at Aquapark 4 was measured above the alert threshold this week. Growers are advised to take caution when harvesting due to increased risk of PST accumulation. 
 
 
 ```{r echo=FALSE, fig.height=5, fig.width=5}
