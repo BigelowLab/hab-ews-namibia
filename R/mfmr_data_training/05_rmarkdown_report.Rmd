@@ -1,0 +1,65 @@
+---
+title: "Rmarkdown reports"
+output: html_document
+date: "2025-04-10"
+author: "Johnathan Evanilla"
+---
+
+The output type can be set above. `pdf_document` and `word_document` are other options.
+
+Each chunk of code runs together and the output is returned below it. 
+
+Options can be defined in the {} 
+
+`echo=FALSE` hides the code in the output document
+
+`message=FALSE` hides any messages returned
+
+```{r message=FALSE}
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+New chunk shortcuts: 
+
+Windows - Ctrl + Alt + I
+Mac - Command + Option + I
+
+```{r message=FALSE}
+x <- read_csv("aquapark4_phytoplankton_2019.csv")
+```
+
+
+Plot phytoplankton cell abundance over the year
+
+```{r echo=FALSE}
+ggplot(x, aes(x=date, y = `Cells/L`)) +
+  geom_point()
+```
+
+
+
+## Formatting
+
+*italics*
+
+**bold**
+
+`read_csv()`
+
+[MFMR Webpage](https://mfmr.gov.na/)
+
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+Lists:
+
+1.
+
+2.
+
+3.
