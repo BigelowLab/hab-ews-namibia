@@ -1,0 +1,124 @@
+---
+title: "06_analysis_report"
+output: pdf_document
+author: "Johnathan Evanilla"
+date: "2025-04-17"
+---
+
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+
+```{r message=FALSE}
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+
+```{r message=FALSE}
+x <- read_csv("aquapark4_phytoplankton_2019.csv")
+```
+
+
+```{r echo=FALSE, fig.cap="Phytoplankton abundance at Aquapark 4 during 2019"}
+ggplot(x, aes(x=date, y = `Cells/L`)) +
+  geom_point()
+```
+
+
+
+```{r}
+dino <- filter(x, Specie == "Dinophysis acuminata")
+```
+
+
+```{r fig.cap="*Dinophyisis acuminata* abundance at Aquapark 4 during 2019"}
+ggplot(data = dino, mapping = aes(x = date, y = `Cells/L`)) +
+  geom_line() +
+  geom_point() + # adds points
+  geom_hline(yintercept = 1000, color = "red", linetype = "dashed") # alert threshold
+```
+
+
+
+
+```{r}
+dino <- filter(x, Specie %in% c("Dinophysis acuminata", "Dinophysis fortii", "Dinophysis sp."))
+```
+
+
+```{r fig.cap="*Dinophysis* abundance at Aquapark 4 during 2019"}
+ggplot(data = dino, mapping = aes(x = date, y = `Cells/L`, linetype = Specie)) +
+  geom_line() +
+  geom_hline(yintercept = 1000, color = "red", linetype = "dashed") 
+```
+
+
+```{r}
+week <- filter(x, date == "2019-03-04")
+```
+
+
+```{r fig.cap="Weekly phytoplankton abundances at Aquapark 4"}
+ggplot(data = week, aes(x=`Cells/L`, y = Specie)) +
+  geom_col()
+```
+
+
+
+```{r message=FALSE}
+y <- read_csv("aquapark4_phytoplankton_2017_2022.csv")
+```
+
+
+```{r}
+pn <- filter(y, Specie %in% c("Pseudo-nitzschia sp.", "Pseudo-nitzschia seriata gr.", "Pseudo-nitzschia delicatissima gr.")) |>
+  mutate(year = format(`Date Collected`, format="%Y"),
+         month = format(`Date Collected`, format="%m"))
+```
+
+
+
+```{r}
+monthly_mean <- pn |>
+  group_by(month) |>
+  summarise(`Cells/L` = mean(`Cells/L`))
+```
+
+
+```{r fig.cap="Mean monthly abundance of Pseudo-nitzschia between 2017-2022"}
+ggplot(data = monthly_mean, aes(x=month, y=`Cells/L`)) +
+  geom_col() +
+  scale_x_discrete(labels=month.abb) +
+  labs(x = "Month", 
+       y = "Mean Abundance (Cells/L)")
+```
+
+
+
+```{r message=FALSE}
+annual_monthly_mean <- pn |>
+  group_by(year, month) |>
+  summarise(`Cells/L` = mean(`Cells/L`))
+```
+
+
+```{r fig.cap="Mean annual monthly abundance of Pseudo-nitzschia between 2017-2022"}
+ggplot(data = annual_monthly_mean, aes(x=month, y=year, fill=`Cells/L`)) +
+  geom_tile() +
+  scale_fill_fermenter(breaks=c(0, 500, 1000, 5000, 10000, 100000), palette="Spectral") +
+  scale_x_discrete(labels=month.abb) +
+  labs(x="Month",
+       y="Year")
+```
+
+
+
+
+
+
+
