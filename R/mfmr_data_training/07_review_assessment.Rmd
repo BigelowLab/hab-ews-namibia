@@ -1,0 +1,74 @@
+---
+title: "07_review_assessment"
+output: html_document
+---
+
+Load the packages you will need
+
+```{r}
+
+```
+
+
+Read the "aquapark4_phytoplankton_2019.csv" data into R and assign it a variable name so you can work with it
+
+```{r}
+
+```
+
+Print a summary of the data you read in above including the columns and their type (for example: numeric, character, date, etc)
+
+```{r}
+
+```
+
+How many samples are diatoms or dinoflagellates? (Hint: we need to count each occurrence of them)
+
+```{r}
+
+```
+
+
+Plot the cell abundance (as points) measured for every observation (y axis) over the entire year (x axis)
+
+```{r}
+
+```
+
+Make a new table only containing observations of "Pseudo-nitzschia sp." counts and store it in a new variable
+
+```{r}
+
+```
+
+How many times was it detected?
+
+```{r}
+
+```
+
+Plot the measured "Pseudo-nitzschia sp." abundance over the year as points connected by lines. Add the alert threshold to the plot as a horizontal dashed, red line.
+
+```{r}
+
+```
+
+
+Extra credit:
+
+What DSP producing species were detected during 2019?
+
+```{r}
+
+```
+
+
+
+- Add your name and today's date to the document heading
+
+- Change the output type to word 
+
+- Hide the messages that are printed when you load packages and read in the data file
+
+
+
