@@ -1,0 +1,95 @@
+---
+title: "07_review_assessment"
+output: html_document
+---
+
+Load the packages you will need
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+
+Read the "aquapark4_phytoplankton_2019.csv" data into R and assign it a variable name so you can work with it
+
+```{r}
+x <- read_csv("aquapark4_phytoplankton_2019.csv")
+```
+
+Print a summary of the data you read in above including the columns and their type (for example: numeric, character, date, etc)
+
+```{r}
+summary(x)
+```
+```{r}
+glimpse(x)
+```
+
+
+How many samples are diatoms or dinoflagellates? (Hint: we need to count each occurrence of them)
+
+```{r}
+count(x, Groups)
+```
+
+
+Plot the cell abundance (as points) measured for every observation (y axis) over the entire year (x axis)
+
+```{r}
+ggplot(data=x, aes(x=date, y=`Cells/L`)) +
+  geom_point()
+```
+
+Make a new table only containing observations of "Pseudo-nitzschia sp." counts and store it in a new variable
+
+```{r}
+pn <- filter(x, Specie == "Pseudo-nitzschia sp.")
+```
+
+How many times was it detected?
+
+```{r}
+pn
+```
+
+```{r}
+count(pn, Specie)
+```
+```{r}
+nrow(pn)
+```
+
+
+Plot the measured "Pseudo-nitzschia sp." abundance over the year as points connected by lines. Add the alert threshold to the plot as a horizontal dashed, red line.
+
+```{r}
+ggplot(data=pn, aes(x=date, y=`Cells/L`)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept=40000, color="red", linetype="dashed")
+```
+
+
+Extra credit:
+
+What DSP producing species were detected during 2019?
+
+```{r}
+dsp <- filter(x, `Toxin producing species` == "DSP")
+
+group_by(dsp, Specie) |>
+  summarise(observations = n())
+```
+
+
+
+- Add your name and today's date to the document heading 
+
+- Change the output type to word 
+
+- Hide the messages that are printed when you load packages and read in the data file 
+
+
+

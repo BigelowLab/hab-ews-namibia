@@ -7,7 +7,7 @@ library(dplyr)
 library(tidyr)
 library(readr)
 
-x <- read_excel("~/Documents/Bigelow/data/namibia/Qry_Aquapark 4 (Four).xlsx")
+x <- read_excel("~/Documents/data/namibia/Qry_Aquapark 4 (Four).xlsx")
 
 stations <- count(x, Station)
 
@@ -24,13 +24,17 @@ id_counts <- x |>
 
 t <- x |>
   filter(Station %in% c("Aquapark 4", "Aquapark 4 (112)", "Aquapark 4 112")) |>
-  mutate(`Date Collected` = as.Date(`Date Collected`, format="%Y-%m-%d"),
+  mutate(date = as.Date(`Date Collected`, format="%Y-%m-%d"),
          id = paste(`Date Collected`, Specie, sep="_")) |>
-  select(-all_of(c("Depth", "Microscope fields", "SumOfTransect Count", "Groups", "Toxin producing species"))) |>
+  #select(-all_of(c("Depth", "Microscope fields", "SumOfTransect Count", "Groups", "Toxin producing species"))) |>
   distinct(id, .keep_all=TRUE)
 
 
-data_wide <- pivot_wider(t, id_cols = `Date Collected`, names_from = Specie, values_from = `Cells/L`, values_fill=0) |>
+data_wide <- pivot_wider(t, 
+                         id_cols = `Date Collected`, 
+                         names_from = Specie, 
+                         values_from = `Cells/L`, 
+                         values_fill=0) |>
   arrange(`Date Collected`)
 
 write_csv(data_wide, "aquapark_4_phyto_2017_2022_wide.csv")
