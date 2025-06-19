@@ -1,0 +1,58 @@
+---
+title: "THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 2024/25"
+output: word_document
+author: "Johnathan Evanilla"
+date: "`r Sys.Date()`"
+---
+
+```{r message=FALSE, echo=FALSE}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+```{r message=FALSE, echo=FALSE}
+x <- read_excel("Phytoplankton Total Cell_L_2018_2024.xlsx")
+```
+
+
+```{r message=FALSE, echo=FALSE}
+z <- x |>
+  distinct() |> # remove duplicates
+  filter(!is.na(`Cells/L`)) |> # remove NA cell/l rows
+  select(-`SumOfTransect Count`, 
+         -Groups, 
+         -`Toxin producing species`,
+         -`Microscope fields`) |> # remove columns that we won't use
+  pivot_wider(names_from = Specie, # columns that contains the names of the new columns
+              values_from = `Cells/L`, # column that contains the values for the new columns
+              values_fn = max, 
+              values_fill = 0) |>
+  mutate(`Date Collected` = as.Date(`Date Collected`), # change the date-time column to only date
+         year = format(`Date Collected`, format="%Y"), # create a year column
+         month = format(`Date Collected`, format="%m"), # create a month column
+         .before = Station) |> # specify the location of the new columns
+  arrange(`Date Collected`) # order the table by date
+```
+
+
+```{r message=FALSE, echo=FALSE}
+pn_monthly_mean <- z |>
+  select(year, month, Station, `Pseudo-nitzschia sp.`, `Pseudo-nitzschia delicatissima gr.`, `Pseudo-nitzschia seriata gr.`) |>
+  group_by(Station, year, month) |>
+  summarise("Cells/L" = mean(`Pseudo-nitzschia sp.`))
+```
+
+# BIOTOXINS AND HABs PHYTOPLANKTON
+
+## AST and Pseudo-nitzschia sp.
+
+### Aquapark 4 for oysters
+
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Aquapark 4 for 2018-2024"}
+filter(pn_monthly_mean, Station == "Aquapark 4") |>
+  ggplot(aes(x = month, y = `Cells/L`, fill = year)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme(legend.position = "bottom")
+```
