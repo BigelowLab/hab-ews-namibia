@@ -1,11 +1,9 @@
 ---
 title: "THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 2024/25"
 output: word_document
-author: "Johnathan Evanilla"
-date: "`r Sys.Date()`"
 ---
 
-```{r message=FALSE, echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(readxl)
 library(dplyr)
 library(tidyr)
@@ -13,11 +11,13 @@ library(ggplot2)
 ```
 
 ```{r message=FALSE, echo=FALSE}
+# read in the raw data
 x <- read_excel("Phytoplankton Total Cell_L_2018_2024.xlsx")
 ```
 
 
 ```{r message=FALSE, echo=FALSE}
+# make a new table format to use for the figures
 z <- x |>
   distinct() |> # remove duplicates
   filter(!is.na(`Cells/L`)) |> # remove NA cell/l rows
@@ -37,22 +37,60 @@ z <- x |>
 ```
 
 
-```{r message=FALSE, echo=FALSE}
-pn_monthly_mean <- z |>
-  select(year, month, Station, `Pseudo-nitzschia sp.`, `Pseudo-nitzschia delicatissima gr.`, `Pseudo-nitzschia seriata gr.`) |>
-  group_by(Station, year, month) |>
-  summarise("Cells/L" = mean(`Pseudo-nitzschia sp.`))
-```
-
 # BIOTOXINS AND HABs PHYTOPLANKTON
 
 ## AST and Pseudo-nitzschia sp.
 
+```{r message=FALSE, echo=FALSE}
+# find the site-specific annual monthly mean for each of the pseudo-nitzschia groups counted
+pn_monthly_mean <- z |>
+  select(year, month, Station, `Pseudo-nitzschia sp.`, `Pseudo-nitzschia delicatissima gr.`, `Pseudo-nitzschia seriata gr.`) |>
+  group_by(Station, year, month) |>
+  summarise("Cells/L" = mean(`Pseudo-nitzschia sp.`),
+            sd = sd(`Pseudo-nitzschia sp.`, na.rm = TRUE),  # Standard deviation
+            n = n(),                                        # Number of observations
+            se = sd / sqrt(n),                              # Standard error
+            .groups = "drop")
+```
+
+
 ### Aquapark 4 for oysters
 
-```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Aquapark 4 for 2018-2024"}
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Aquapark 4 for 2018-2024", fig.width=8}
 filter(pn_monthly_mean, Station == "Aquapark 4") |>
   ggplot(aes(x = month, y = `Cells/L`, fill = year)) +
   geom_bar(stat = "identity", position = "dodge") +
-  theme(legend.position = "bottom")
+  scale_y_continuous(expand = c(0, 0)) + 
+  scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+  labs(x = "Month", y = "Cells/L", fill = "Year") +
+  theme_classic() +
+  theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1))
 ```
+
+### Luderitz for oysters
+
+```{r echo=FALSE, message=FALSE}
+# find the annual monthly mean for each of the pseudo-nitzschia groups counted at 3 combined Luderitz sites
+lud_pn <- filter(z, Station %in% c("Luderitz Mariculture", 
+                                   "NamOyster CC Lüderitz", 
+                                   "Tetelestai Mariculture Lüderitz")) |>
+  select(year, month, `Pseudo-nitzschia sp.`, `Pseudo-nitzschia delicatissima gr.`, `Pseudo-nitzschia seriata gr.`) |>
+  group_by(year, month) |>
+  summarise("Cells/L" = mean(`Pseudo-nitzschia sp.`))
+```
+
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Luderitz for 2018-2024", fig.width=8}
+ ggplot(data = lud_pn, aes(x = month, y = `Cells/L`, fill = year))  +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = c(0, 0)) + 
+  scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+  labs(x = "Month", y = "Cells/L", fill = "Year") +
+  theme_classic() +
+  theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1))
+```
+
+
+
+
