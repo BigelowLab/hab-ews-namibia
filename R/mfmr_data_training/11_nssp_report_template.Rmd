@@ -3,6 +3,7 @@ title: "THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 202
 output: word_document
 ---
 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(readxl)
 library(dplyr)
@@ -37,6 +38,16 @@ z <- x |>
 ```
 
 
+```{r echo=FALSE}
+# assign each year to a custom color palette
+# found the answer here: https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin
+library(RColorBrewer)
+years <- unique(z$year)
+myColors <- brewer.pal(length(years),"Spectral")
+names(myColors) <- years
+```
+
+
 # BIOTOXINS AND HABs PHYTOPLANKTON
 
 ## AST and *Pseudo-nitzschia sp.*
@@ -68,7 +79,8 @@ filter(pn_monthly_mean, Station == "Aquapark 1") |>
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1)) 
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
   #ylim(0, 150000)
 ```
 
@@ -83,7 +95,8 @@ filter(pn_monthly_mean, Station == "Aquapark 4") |>
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1))
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
 ```
 
 
@@ -96,7 +109,8 @@ filter(pn_monthly_mean, Station == "Nam Oysters SALT PANS") |>
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1))
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
 ```
 
 
@@ -123,7 +137,8 @@ lud_pn <- filter(z, Station %in% c("Luderitz Mariculture",
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1))
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
 ```
 
 ### Lüderitz (PA L1) for abalone
@@ -165,7 +180,8 @@ filter(dn_monthly_mean, Station == "Aquapark 1") |>
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1)) 
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
 ```
 
 ### Aquapark 4 (PA WB4) for oysters
@@ -179,7 +195,8 @@ filter(dn_monthly_mean, Station == "Aquapark 4") |>
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1)) 
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
 ```
 
 ```{r message=FALSE, echo=FALSE, fig.cap="Mean Dinophysis spp cells/L in Aquapark 4 (pond 2) for 2018-2024", fig.width=8}
@@ -191,7 +208,8 @@ filter(dn_monthly_mean, Station == "Nam Oysters SALT PANS") |>
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1)) 
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
 ```
 
 
@@ -219,7 +237,8 @@ lud_dn <- filter(z, Station %in% c("Luderitz Mariculture",
   labs(x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
-  guides(fill = guide_legend(nrow = 1))
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
 ```
 
 
@@ -245,6 +264,135 @@ filter(z, Station %in% c("Luderitz Mariculture",
 filter(z, Station %in% c("Hangana Abalone")) |>
   select(`Date Collected`, year, month, `Dinophysis sp.`, `Dinophysis acuminata`, `Dinophysis fortii`, `Dinophysis accuta`) |>
   pivot_longer(cols = c(`Dinophysis sp.`, `Dinophysis acuminata`, `Dinophysis fortii`, `Dinophysis accuta`),
+               names_to = "Species",
+               values_to = "cells") |>
+  filter(cells > 0) |>
+  ggplot(aes(x = `Date Collected`, y = cells)) +
+  geom_point() +
+  theme_classic() +
+  labs(x = "Date", y = "Cells/L")
+```
+
+
+## PSTs and *Alexandrium* spp
+
+```{r message=FALSE, echo=FALSE}
+# find the site-specific annual monthly mean for each of the alexandrium groups counted
+al_monthly_mean <- z |>
+  select(year, month, Station, `Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, `Alexandrium catenella`, 
+         `alexandrium Tamarense`) |>
+  pivot_longer(cols = c(`Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
+                        `Alexandrium catenella`, `alexandrium Tamarense`),
+               names_to = "Species",
+               values_to = "cells") |>
+  group_by(Station, year, month) |>
+  summarise("Cells/L" = mean(cells),
+            sd = sd(cells, na.rm = TRUE),  # Standard deviation
+            n = n(),                                        # Number of observations
+            se = sd / sqrt(n),                              # Standard error
+            .groups = "drop")
+```
+
+
+### Aquapark 1 (PA WB1) for oysters
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 1 for 2018-2024", fig.width=8}
+filter(al_monthly_mean, Station == "Aquapark 1") |>
+  ggplot(aes(x = month, y = `Cells/L`, fill = year)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = c(0, 0)) + 
+  scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+  labs(x = "Month", y = "Cells/L", fill = "Year") +
+  theme_classic() +
+  theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
+```
+
+
+### Aquapark 4 (PA WB4) for oysters
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 4 for 2018-2024", fig.width=8}
+filter(al_monthly_mean, Station == "Aquapark 4") |>
+  ggplot(aes(x = month, y = `Cells/L`, fill = year)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+  labs(x = "Month", y = "Cells/L", fill = "Year") +
+  theme_classic() +
+  theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(name = "year", values = myColors)
+```
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 4 (pond 2) for 2018-2024", fig.width=8}
+filter(al_monthly_mean, Station == "Nam Oysters SALT PANS") |>
+  ggplot(aes(x = month, y = `Cells/L`, fill = year)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+  labs(x = "Month", y = "Cells/L", fill = "Year") +
+  theme_classic() +
+  theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(name = "year", values = myColors)
+```
+
+### Lüderitz second lagoon (PA L2) for oysters
+
+```{r echo=FALSE, message=FALSE}
+# find the annual monthly mean for each of the alexandrium groups counted at 3 combined Luderitz sites
+lud_al <- filter(z, Station %in% c("Luderitz Mariculture", 
+                                   "NamOyster CC Lüderitz", 
+                                   "Tetelestai Mariculture Lüderitz")) |>
+  select(year, month, `Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
+                        `Alexandrium catenella`, `alexandrium Tamarense`) |>
+  pivot_longer(cols = c(`Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
+                        `Alexandrium catenella`, `alexandrium Tamarense`),
+               names_to = "Species",
+               values_to = "cells") |>
+  group_by(year, month) |>
+  summarise("Cells/L" = mean(cells))
+```
+
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Luderitz for 2018-2024", fig.width=8}
+ ggplot(data = lud_al, aes(x = month, y = `Cells/L`, fill = year))  +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(expand = c(0, 0)) + 
+  scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+  labs(x = "Month", y = "Cells/L", fill = "Year") +
+  theme_classic() +
+  theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
+  guides(fill = guide_legend(nrow = 1)) +
+  scale_fill_manual(name = "year", values = myColors)
+```
+
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz oyster sites", fig.width=8}
+filter(z, Station %in% c("Luderitz Mariculture", 
+                         "NamOyster CC Lüderitz", 
+                         "Tetelestai Mariculture Lüderitz")) |>
+  select(`Date Collected`, year, month, `Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
+                        `Alexandrium catenella`, `alexandrium Tamarense`) |>
+  pivot_longer(cols = c(`Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
+                        `Alexandrium catenella`, `alexandrium Tamarense`),
+               names_to = "Species",
+               values_to = "cells") |>
+  filter(cells > 0) |>
+  ggplot(aes(x = `Date Collected`, y = cells)) +
+  geom_point() +
+  theme_classic() +
+  labs(x = "Date", y = "Cells/L")
+```
+
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz abalone sites", fig.width=8}
+filter(z, Station %in% c("Hangana Abalone")) |>
+  select(`Date Collected`, year, month, `Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
+                        `Alexandrium catenella`, `alexandrium Tamarense`) |>
+  pivot_longer(cols = c(`Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
+                        `Alexandrium catenella`, `alexandrium Tamarense`),
                names_to = "Species",
                values_to = "cells") |>
   filter(cells > 0) |>
