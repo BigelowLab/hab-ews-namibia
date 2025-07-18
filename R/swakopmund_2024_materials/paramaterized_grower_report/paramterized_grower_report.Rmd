@@ -8,6 +8,7 @@ params:
   dinophysis_threshold: 1000
   pseudo_nitzshia_threshold: 20000
   prorocentrum_lima_threshold: 200
+always_allow_html: true
 ---
 
 ```{r include=FALSE}
@@ -76,7 +77,7 @@ Report Author: `r params$author`
 ```{r include=FALSE}
 # load phytoplankton data
 
-x <- read_excel("~/Documents/Bigelow/data/namibia/Qry_Aquapark 4 (Four).xlsx") |>
+x <- read_excel("~/Documents/data/namibia/Qry_Aquapark 4 (Four).xlsx") |>
   mutate(month = format(`Date Collected`, format="%m"),
          week = format(`Date Collected`, format="%U"),
          year = format(`Date Collected`, format="%Y"),
@@ -89,7 +90,7 @@ x <- read_excel("~/Documents/Bigelow/data/namibia/Qry_Aquapark 4 (Four).xlsx") |
 ```{r echo=FALSE}
 # load environmental data
 
-environment <- read_excel("~/Documents/Bigelow/data/namibia/Mariculture multi-meter raw data.xlsx") |>
+environment <- read_excel("~/Documents/data/namibia/Mariculture multi-meter raw data.xlsx") |>
   mutate(date = as.Date(`Sampling date`, format="%Y-%m-%d")) |>
   filter(date == as.Date(params$sample_date),
          Station == params$station)
@@ -98,7 +99,7 @@ environment <- read_excel("~/Documents/Bigelow/data/namibia/Mariculture multi-me
 ```{r echo=FALSE}
 # load nutrient data
 
-nutrient <- read_excel("~/Documents/Bigelow/data/namibia/Nutrients_data_EWS2024.xlsx", skip=1)
+nutrient <- read_excel("~/Documents/data/namibia/Nutrients_data_EWS2024.xlsx", skip=1)
 ```
 
 
