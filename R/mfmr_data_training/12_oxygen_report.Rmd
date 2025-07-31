@@ -1,35 +1,10 @@
 ---
 output:
-  word_document: default
-  pdf_document: default
+  officedown::rdocx_document:
+    reference_num: false
 params:
   station: "Fermar Seafoods CC (109)"
 ---
-
-### REPUBLIC OF NAMIBIA
-
-### MINISTRY OF FISHERIES AND MARINE RESOURCES
-
-
-Directorate of Aquaculture
-
-Enquiries: H. Skrypzeck
-
-Tel: (+264 64) 4101000
-
-Fax: (+264 64) 404385
-
-P O Box 912
-
-Swakopmund
-
-Namibia
-
-## Namibian Shellfish Sanitation and BiotoxinMonitoring Program
-
-### `r params$station`
-
-### Oxygen Report
 
 ```{r message=FALSE, echo=FALSE, warning= FALSE}
 library(readr)
@@ -37,16 +12,42 @@ library(readxl)
 library(ggplot2)
 library(dplyr)
 library(kableExtra)
+library(officer)
+```
+
+```{r echo=FALSE}
+ft_text<-fp_text(color="black", bold=T, font.size=15, font.family="Calibri (Body)")
+fp_center<-fp_par(line_spacing = 1.5, text.align="center")
+fpar(ftext("REPUBLIC OF NAMIBIA", ft_text), fp_p=fp_center)
+fpar(ftext("MINISTRY OF FISHERIES AND MARINE RESOURCES", ft_text), fp_p=fp_center)
 ```
 
 
+```{r echo=FALSE}
+ft_text<-fp_text(color="black", bold=F, font.size=8, font.family="Calibri (Body)")
+fp_center<-fp_par(line_spacing = 1.5, text.align="center")
+fpar("Directorate of Aquaculture", run_linebreak(), "Enquiries: H. Skrypzeck", run_linebreak(), "Tel: (+264 64) 4101000", run_linebreak()," Fax: (+264 64) 404385",
+     run_linebreak(), "P O Box 912", run_linebreak(), "Swakopmund", run_linebreak(), "Namibia")
+```
+
+
+```{r echo=FALSE}
+ft_text<-fp_text(color="blue", bold=T, font.size=22, font.family="Calibri (Body)")
+fp_center<-fp_par(line_spacing = 1.5, text.align="center")
+fpar(ftext("Namibian Shellfish Sanitation and Biotoxin Monitoring Program", ft_text), fp_p=fp_center)
+fpar(ftext(params$station, ft_text), fp_p=fp_center)
+```
+
+Oxygen Report
 
 ```{r echo=FALSE, message=FALSE}
 plot_data <- read_excel("Qry_Dissolved O2.xlsx") |>
   mutate(do_mg_l = DissolvedO2/0.7) |>
-  group_by(`Sampling Date`, Station, Depth) |>
+  group_by(`Sampling Date`, Station, Depth, `Depth (w)`) |>
   summarise(do_mg_l = mean(do_mg_l)) |>
-  filter(Station == params$station)
+  filter(Station == params$station) |>
+  rename("Depth (m)" = "Depth",
+         "Dissolved O2" = "do_mg_l")
 ```
 
 
@@ -56,16 +57,16 @@ kable(plot_data)
 
 
 
-```{r echo=FALSE, message=FALSE, fig.cap="Depth vs Disslved O2", fig.width=8}
-ggplot(plot_data, aes(x = do_mg_l, y = Depth)) +
+```{r echo=FALSE, message=FALSE, fig.cap="Depth vs Disslved O2", fig.width=3, fig.height=3}
+ggplot(plot_data, aes(x = `Dissolved O2`, y = `Depth (m)`)) +
   geom_point(color = "blue", size = 3) +
   geom_path(color = "red", linewidth = 0.7) +  # Connect points
   labs(title = "Dissolved O2 Profile by Depth",
        x = "Dissolved Oxygen mg/l",
        y = "Depth") +
-  scale_y_reverse(breaks = seq(0, max(plot_data$Depth), by = 1)) +# Makes depth increase downward
-  scale_x_continuous(limits = c(floor(min(plot_data$do_mg_l)), ceiling(max(plot_data$do_mg_l))), 
-                     breaks = seq(floor(min(plot_data$do_mg_l)), ceiling(max(plot_data$do_mg_l)), by = 0.5), 
+  scale_y_reverse(breaks = seq(0, max(plot_data$`Depth (m)`), by = 1)) +# Makes depth increase downward
+  scale_x_continuous(limits = c(floor(min(plot_data$`Dissolved O2`)), ceiling(max(plot_data$`Dissolved O2`))), 
+                     breaks = seq(floor(min(plot_data$`Dissolved O2`)), ceiling(max(plot_data$`Dissolved O2`)), by = 0.5), 
                      position = "top") + # (position = "top") change of y axis to top
   theme_classic() +
   theme(plot.title = element_text(hjust = 0.5))
