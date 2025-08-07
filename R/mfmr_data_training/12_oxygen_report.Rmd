@@ -6,6 +6,11 @@ params:
   station: "Fermar Seafoods CC (109)"
 ---
 
+```{r echo=FALSE}
+# officeverse book link: https://ardata-fr.github.io/officeverse/index.html
+```
+
+
 ```{r message=FALSE, echo=FALSE, warning= FALSE}
 library(readr)
 library(readxl)
@@ -22,9 +27,10 @@ fpar(ftext("REPUBLIC OF NAMIBIA", ft_text), fp_p=fp_center)
 fpar(ftext("MINISTRY OF FISHERIES AND MARINE RESOURCES", ft_text), fp_p=fp_center)
 ```
 
+***
 
 ```{r echo=FALSE}
-ft_text<-fp_text(color="black", bold=F, font.size=8, font.family="Calibri (Body)")
+ft_text<-fp_text(color="black", bold=T, font.size=8, font.family="Calibri (Body)")
 fp_center<-fp_par(line_spacing = 1.5, text.align="center")
 fpar("Directorate of Aquaculture", run_linebreak(), "Enquiries: H. Skrypzeck", run_linebreak(), "Tel: (+264 64) 4101000", run_linebreak()," Fax: (+264 64) 404385",
      run_linebreak(), "P O Box 912", run_linebreak(), "Swakopmund", run_linebreak(), "Namibia")
@@ -32,13 +38,20 @@ fpar("Directorate of Aquaculture", run_linebreak(), "Enquiries: H. Skrypzeck", r
 
 
 ```{r echo=FALSE}
-ft_text<-fp_text(color="blue", bold=T, font.size=22, font.family="Calibri (Body)")
-fp_center<-fp_par(line_spacing = 1.5, text.align="center")
+ft_text<-fp_text(color="blue", bold=T, font.size=18, font.family="Calibri (Body)")
+fp_center<-fp_par(line_spacing = 1.5, text.align="center", border = fp_border(color = "blue", style = "dotDotDash", width = 3))
 fpar(ftext("Namibian Shellfish Sanitation and Biotoxin Monitoring Program", ft_text), fp_p=fp_center)
 fpar(ftext(params$station, ft_text), fp_p=fp_center)
 ```
 
-Oxygen Report
+
+```{r echo=FALSE}
+ft_text<-fp_text(color="blue", bold=T, font.size=18, font.family="Calibri (Body)")
+fp_center<-fp_par(line_spacing = 1.5, text.align="center", border = fp_border(color = "blue", width = 3))
+fpar(ftext("Oxygen Report", ft_text), fp_p=fp_center)
+```
+
+***
 
 ```{r echo=FALSE, message=FALSE}
 plot_data <- read_excel("Qry_Dissolved O2.xlsx") |>
@@ -57,7 +70,8 @@ kable(plot_data)
 
 
 
-```{r echo=FALSE, message=FALSE, fig.cap="Depth vs Disslved O2", fig.width=3, fig.height=3}
+
+```{r echo=FALSE, message=FALSE, fig.width=5, fig.height=3}
 ggplot(plot_data, aes(x = `Dissolved O2`, y = `Depth (m)`)) +
   geom_point(color = "blue", size = 3) +
   geom_path(color = "red", linewidth = 0.7) +  # Connect points
