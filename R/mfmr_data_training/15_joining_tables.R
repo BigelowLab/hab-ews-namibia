@@ -1,9 +1,13 @@
 ## Join together phytoplankton monitoring data with physical and nutrient observations
 
+# isntalling ggpubr
+#install.packages("ggpubr")
+
 library(dplyr)
 library(readr)
 library(readxl)
 library(ggplot2)
+library(ggpubr)
 
 # read in each data type
 cells <- read_excel("Phytoplankton Total Cell_L_2018_2024.xlsx") |>
@@ -54,7 +58,7 @@ filter(z, station == "Aquapark 4" & Groups == "Diatoms" & `Cells/L` < 3000000) |
              y = `Cells/L`)) +
   geom_point()
 
-filter(z, station == "Aquapark 4" & Groups == "Dinoflagellates") |> 
+filter(z, station == "Aquapark 4" & Groups == "Diatoms") |> 
   ggplot(aes(x = `Temperature (°C)`,
              y = `Cells/L`)) +
   geom_point()
@@ -78,7 +82,8 @@ filter(z, station == "Aquapark 4" & Groups == "Diatoms" & `Cells/L` < 3000000) |
 filter(z, station == "Aquapark 4" & Groups == "Diatoms" & `Cells/L` < 3000000) |> 
   ggplot(aes(x = `Silicate`,
              y = `Cells/L`)) +
-  geom_point()
+  geom_point() +
+  stat_cor()
 
 filter(z, station == "Swakopmund Jetty" & Groups == "Diatoms" & `Cells/L` < 250000) |> 
   ggplot(aes(x = `Silicate`,
@@ -95,4 +100,44 @@ filter(z, Groups == "Dinoflagellates" & `Cells/L` < 2500000) |>
   ggplot(aes(x = `Silicate`,
              y = `Cells/L`)) +
   geom_point()
+
+filter(z, Groups == "Diatoms" & `Cells/L` < 2500000) |> 
+  ggplot(aes(x = `Silicate`,
+             y = `Cells/L`)) +
+  geom_point() 
+
+
+# adding correlation coefficients
+
+filter(z, station == "Aquapark 4" & Groups == "Diatoms" & `Cells/L` < 3000000) |> 
+  ggplot(aes(x = `Temperature (°C)`,
+             y = `Cells/L`)) +
+  geom_point() +
+  stat_cor()
+
+filter(z, station == "Aquapark 4" & Groups == "Diatoms" & `Cells/L` < 3000000) |> 
+  ggplot(aes(x = `Dissolved Oxygen (mg/L)`,
+             y = `Cells/L`)) +
+  geom_point() +
+  stat_cor()
+
+filter(z, Groups == "Diatoms" & `Cells/L` < 2500000) |> 
+  ggplot(aes(x = `Silicate`,
+             y = `Cells/L`)) +
+  geom_point() +
+  stat_cor()
+
+# summarise phytoplankton cell counts by group (ie diatom, dinoflagellate)
+
+grouped_cells <- cells |>
+  group_by(station, date, Groups) |>
+  summarise(`Cells/L` = sum(`Cells/L`))
+
+zz <- left_join(grouped_cells, j)
+
+filter(zz, Groups == "Diatoms" & `Cells/L` < 2500000) |> 
+  ggplot(aes(x = `Silicate`,
+             y = `Cells/L`)) +
+  geom_point() +
+  stat_cor()
 
