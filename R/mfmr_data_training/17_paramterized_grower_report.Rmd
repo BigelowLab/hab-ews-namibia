@@ -1,0 +1,281 @@
+---
+output: pdf_document
+params:
+  sample_date: "2022-02-07"
+  station: "Aquapark 4"
+  author: "Johnathan Evanilla"
+  alexandrium_threshold: 200
+  dinophysis_threshold: 1000
+  pseudo_nitzshia_threshold: 20000
+  prorocentrum_lima_threshold: 200
+always_allow_html: true
+---
+
+```{r include=FALSE}
+suppressPackageStartupMessages({
+  library(readxl)
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)
+  library(forcats)
+  
+  #library(sf)
+  #library(rnaturalearth)
+  #library(leaflet)
+  library(knitr)
+  library(kableExtra)
+})
+```
+
+
+```{r, echo=FALSE, fig.align='center', out.width="50%", height="50%"}
+# adds coat of arms to report
+include_graphics(path = "coat of Arms JPG.jpg")
+```
+
+
+## REPUBLIC OF NAMIBIA
+
+## MINISTRY OF FISHERIES AND MARINE RESOURCES
+
+
+
+Directorate of Aquaculture
+
+Enquiries: H. Skrypzeck
+
+Tel: (+264 64) 4101000
+
+Fax: (+264 64) 404385
+
+P O Box 912
+
+Swakopmund
+
+Namibia
+
+
+## Namibian Shellfish Sanitation Program
+
+
+Sampling area:  `r params$station`
+
+Sampling date: `r params$sample_date`
+
+Report Date: `r Sys.Date()`
+
+Report Author: `r params$author`
+
+
+
+
+
+\pagebreak
+
+
+
+```{r include=FALSE}
+# load phytoplankton data
+
+x <- read_excel("Phytoplankton Total Cell_L_2018_2024.xlsx") |>
+  mutate(month = format(`Date Collected`, format="%m"),
+         week = format(`Date Collected`, format="%U"),
+         year = format(`Date Collected`, format="%Y"),
+         date = as.Date(`Date Collected`, format="%Y-%m-%d")) |>
+  filter(between(date, as.Date(params$sample_date)-365, as.Date(params$sample_date)),
+         Station == params$station)
+```
+
+
+```{r echo=FALSE}
+# load environmental data
+
+environment <- read_excel("MultiMeter_Spectro-Data.xlsx") |>
+  mutate(date = as.Date(`Sampling date`, format="%Y-%m-%d")) |>
+  filter(date == as.Date(params$sample_date),
+         Station == params$station) |>
+  select(-`Instrument model`)
+```
+
+```{r echo=FALSE}
+# load nutrient data
+
+nutrient <- read_excel("MultiMeter_Spectro-Data.xlsx", sheet=2, range = cell_cols("A:E"))
+```
+
+
+```{r include=FALSE}
+z <- x |>
+  filter(date == as.Date(params$sample_date))
+```
+
+
+
+## Phytoplankton Summary
+
+```{r echo=FALSE}
+diatoms <- z |>
+  distinct() |>
+  filter(Groups %in% c("Diatom", "Diatoms")) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         threshold = c(NA, NA, params$pseudo_nitzshia_threshold, NA, NA, NA, NA),
+         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA)) |>
+  select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
+  rename("Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species",
+         "Threshold" = "threshold",
+         "Threshold Alert" = "threshold_alert") |>
+  arrange(desc(`Cells/L`))
+```
+
+
+```{r echo=FALSE}
+options(knitr.kable.NA = '') # what is another way to set this option?
+
+diatoms[nrow(diatoms)+1,] = data.frame(NA, "Total Cells/L =", sum(diatoms$`Cells/L`), NA, NA)
+
+kable(diatoms, caption = "Diatoms", padding=10)
+```
+Summary of diatom species observed and their abundances on `r params$sample_date` at `r params$station`. Alert threshold values are included for toxin producing species in the "Threshold" column, and "THRESHOLD EXCEEDED" is printed for species measured above it. 
+
+
+```{r echo=FALSE}
+dinos <- z |>
+  distinct() |>
+  filter(Groups %in% c("Dinoflagellates")) |>
+  mutate(`Cells/L` = round(`Cells/L`),
+         threshold = c(params$prorocentrum_lima_threshold, NA, NA, NA, params$alexandrium_threshold),
+         threshold_alert = c(NA, NA, NA, NA, "THRESHOLD EXCEEDED")) |>
+  select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
+  rename("Species" = "Specie", 
+         "Potential Toxin" = "Toxin producing species",
+         "Threshold" = "threshold",
+         "Threshold Alert" = "threshold_alert") |>
+  arrange(desc(`Cells/L`))
+```
+
+
+```{r echo=FALSE}
+dinos[nrow(dinos)+1,] = data.frame(NA, "Total Cells/L =", sum(dinos$`Cells/L`), NA, NA)
+
+kable(dinos, caption = "Dinoflagellates")
+```
+Summary of dinoflagellate species observed and their abundances on `r params$sample_date` at `r params$station`. Alert threshold values are included for toxin producing species in the "Threshold" column, and "THRESHOLD EXCEEDED" is printed for species measured above it. 
+
+
+\pagebreak
+
+
+```{r echo=FALSE, fig.height=4}
+ggplot(diatoms[1:7,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`)) + 
+  geom_col() +
+  ylab("Species") +
+  labs(title = "Diatom Cell Abundance")
+```
+Current diatom cell abundances (in cells/L) shown in Table 1 plotted by species. Species measured above the alert threshold are indicated by a red colored bar. 
+
+```{r echo=FALSE, fig.height=4}
+ggplot(dinos[1:5,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`, fill=`Threshold Alert`)) + 
+  geom_col() + 
+  guides(fill="none") +
+  ylab("Species") +
+  labs(title = "Dinoflagellate Cell Abundance")
+```
+Current dinoflagellate cell abundances (in cells/L) shown in Table 1 plotted by species. Species measured above the alert threshold are indicated by a red colored bar. 
+
+
+\pagebreak
+
+
+
+
+### Biotoxin Producing Phytoplankton Trends
+
+
+```{r echo=FALSE}
+filter(x, `Toxin producing species` == "PSP") |>
+  ggplot(aes(x=date, y=`Cells/L`)) +
+  geom_line(aes(linetype = Specie)) +
+  geom_hline(yintercept=params$alexandrium_threshold, linetype="dashed", color="red") +
+  labs(title = "Paralytic Shellfish Toxin (PST) Producing Species")
+```
+
+Cell abundance measurements from the last year at `r params$station` of paralytic shellfish toxin producing species. The red dashed line indicates the alert threshold.
+
+```{r echo=FALSE}
+filter(x, `Toxin producing species` == "DSP") |>
+  ggplot(aes(x=date, y=`Cells/L`)) +
+  geom_line(aes(linetype = Specie)) +
+  geom_hline(yintercept=params$dinophysis_threshold, linetype="dashed", color="red") +
+  labs(title = "Diarrhetic Shellfish Toxin (DST) Producing Species")
+```
+
+Cell abundance measurements from the last year at `r params$station` of diarrhetic shellfish toxin producing species. The red dashed line indicates the alert threshold.
+
+```{r echo=FALSE}
+filter(x, `Toxin producing species` == "ASP") |>
+  ggplot(aes(x=date, y=`Cells/L`)) +
+  geom_line(aes(linetype = Specie)) +
+  geom_hline(yintercept=params$pseudo_nitzshia_threshold, linetype="dashed", color="red") +
+  labs(title = "Amnesic Shellfish Toxin (AST) Producing Species")
+```
+
+Cell abundance measurements from the last year at `r params$station` of amnesic shellfish toxin producing species. The red dashed line indicates the alert threshold.
+
+
+
+
+\pagebreak
+
+## Environment
+
+```{r echo=FALSE}
+e <- select(environment, `Dissolved Oxygen (mg/L)`, `PH (mol/L)`, `Temperature (°C)`) 
+
+pivot_longer(e, cols = colnames(e)) |>
+  mutate("Critical Level" = NA) |>
+  rename("Current Level" = "value") |>
+  kable(padding=50)
+```
+
+Water quality parameters measured on `r params$sample_date` at `r params$station`.
+
+## Nutrient
+
+```{r echo=FALSE, warning=FALSE}
+#nutrient |>
+#  filter(Date == params$sample_date)
+
+tribble(
+  ~name,       ~value,
+  "Nitrate",   nutrient$Nitrate[[1]],
+  "Phosphate", nutrient$Phosphate[[1]],
+  "Silicate",  nutrient$Silcate[[1]]
+) |>
+  kable(padding=80)
+```
+
+Nutrient parameters measured on `r params$sample_date` at `r params$station`.
+
+
+## Biotoxin (future component)
+
+
+
+## Forecast (future component)
+
+example: *Alexandrium sp.* cell abundance at Aquapark 4 was measured above the alert threshold this week. Growers are advised to take caution when harvesting due to increased risk of PST accumulation. 
+
+
+```{r eval=FALSE, echo=FALSE, fig.height=5, fig.width=5}
+source("stations.R")
+s<- get_stations()
+
+leaflet(data=s[1:4,]) |> 
+  addTiles() |>
+  addCircleMarkers(~lon, ~lat, popup=~htmltools::htmlEscape(station))
+```
+
+\textcolor{red}{Please note: Some of the phytoplankton from the genera Dinophysis and Pseudo-nitzschia can potentially produce biotoxins. The biotoxin produced by the particular species is indicated in the "Potential Toxin" column, however this does not mean that the toxin is present. Only biotoxin tests can confirm the presence or absence of toxin.}
+
+
