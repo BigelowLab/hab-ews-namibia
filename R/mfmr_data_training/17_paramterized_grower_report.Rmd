@@ -1,7 +1,7 @@
 ---
 output: pdf_document
 params:
-  sample_date: "2022-02-07"
+  sample_date: "2024-05-13"
   station: "Aquapark 4"
   author: "Johnathan Evanilla"
   alexandrium_threshold: 200
@@ -77,6 +77,8 @@ Report Author: `r params$author`
 ```{r include=FALSE}
 # load phytoplankton data
 
+#read_phyto_data()
+
 x <- read_excel("Phytoplankton Total Cell_L_2018_2024.xlsx") |>
   mutate(month = format(`Date Collected`, format="%m"),
          week = format(`Date Collected`, format="%U"),
@@ -118,8 +120,10 @@ diatoms <- z |>
   distinct() |>
   filter(Groups %in% c("Diatom", "Diatoms")) |>
   mutate(`Cells/L` = round(`Cells/L`),
-         threshold = c(NA, NA, params$pseudo_nitzshia_threshold, NA, NA, NA, NA),
-         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA)) |>
+         threshold = c(NA, NA, NA, NA, NA, NA, NA),
+         #threshold = add_threshold(),
+         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA),
+         #threshold_alert = add_threshold_alert()) |>
   select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
   rename("Species" = "Specie", 
          "Potential Toxin" = "Toxin producing species",
@@ -144,8 +148,8 @@ dinos <- z |>
   distinct() |>
   filter(Groups %in% c("Dinoflagellates")) |>
   mutate(`Cells/L` = round(`Cells/L`),
-         threshold = c(params$prorocentrum_lima_threshold, NA, NA, NA, params$alexandrium_threshold),
-         threshold_alert = c(NA, NA, NA, NA, "THRESHOLD EXCEEDED")) |>
+         threshold = c(params$dinophysis_threshold, NA, NA, NA, NA, NA, NA, NA, NA),
+         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA, NA, NA)) |>
   select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
   rename("Species" = "Specie", 
          "Potential Toxin" = "Toxin producing species",
@@ -167,7 +171,7 @@ Summary of dinoflagellate species observed and their abundances on `r params$sam
 
 
 ```{r echo=FALSE, fig.height=4}
-ggplot(diatoms[1:7,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`)) + 
+ggplot(diatoms[1:nrow(diatoms)-1,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`)) + 
   geom_col() +
   ylab("Species") +
   labs(title = "Diatom Cell Abundance")
@@ -175,7 +179,7 @@ ggplot(diatoms[1:7,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`)) +
 Current diatom cell abundances (in cells/L) shown in Table 1 plotted by species. Species measured above the alert threshold are indicated by a red colored bar. 
 
 ```{r echo=FALSE, fig.height=4}
-ggplot(dinos[1:5,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`, fill=`Threshold Alert`)) + 
+ggplot(dinos[1:nrow(dinos)-1,], aes(y=fct_reorder(Species, `Cells/L`), x=`Cells/L`, fill=`Threshold Alert`)) + 
   geom_col() + 
   guides(fill="none") +
   ylab("Species") +
@@ -243,14 +247,14 @@ Water quality parameters measured on `r params$sample_date` at `r params$station
 ## Nutrient
 
 ```{r echo=FALSE, warning=FALSE}
-#nutrient |>
-#  filter(Date == params$sample_date)
+nutrient |>
+  filter(`Sample Date` == params$sample_date)
 
 tribble(
   ~name,       ~value,
   "Nitrate",   nutrient$Nitrate[[1]],
   "Phosphate", nutrient$Phosphate[[1]],
-  "Silicate",  nutrient$Silcate[[1]]
+  "Silicate",  nutrient$Silicate[[1]]
 ) |>
   kable(padding=80)
 ```
