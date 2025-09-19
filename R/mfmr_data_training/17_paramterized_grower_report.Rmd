@@ -1,7 +1,7 @@
 ---
 output: pdf_document
 params:
-  sample_date: "2024-05-13"
+  sample_date: "2022-02-07"
   station: "Aquapark 4"
   author: "Johnathan Evanilla"
   alexandrium_threshold: 200
@@ -11,26 +11,15 @@ params:
 always_allow_html: true
 ---
 
-```{r include=FALSE}
-suppressPackageStartupMessages({
-  library(readxl)
-  library(ggplot2)
-  library(dplyr)
-  library(tidyr)
-  library(forcats)
-  
-  #library(sf)
-  #library(rnaturalearth)
-  #library(leaflet)
-  library(knitr)
-  library(kableExtra)
-})
+
+```{r}
+source("../setup.R")
 ```
 
 
 ```{r, echo=FALSE, fig.align='center', out.width="50%", height="50%"}
 # adds coat of arms to report
-include_graphics(path = "coat of Arms JPG.jpg")
+include_graphics(path = "../data/coat of Arms JPG.jpg")
 ```
 
 
@@ -76,16 +65,9 @@ Report Author: `r params$author`
 
 ```{r include=FALSE}
 # load phytoplankton data
-
-#read_phyto_data()
-
-x <- read_excel("Phytoplankton Total Cell_L_2018_2024.xlsx") |>
-  mutate(month = format(`Date Collected`, format="%m"),
-         week = format(`Date Collected`, format="%U"),
-         year = format(`Date Collected`, format="%Y"),
-         date = as.Date(`Date Collected`, format="%Y-%m-%d")) |>
+x <- read_phyto_data() |>
   filter(between(date, as.Date(params$sample_date)-365, as.Date(params$sample_date)),
-         Station == params$station)
+        Station == params$station)
 ```
 
 
@@ -122,7 +104,7 @@ diatoms <- z |>
   mutate(`Cells/L` = round(`Cells/L`),
          threshold = c(NA, NA, NA, NA, NA, NA, NA),
          #threshold = add_threshold(),
-         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA),
+         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA)) |>
          #threshold_alert = add_threshold_alert()) |>
   select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
   rename("Species" = "Specie", 
@@ -148,8 +130,8 @@ dinos <- z |>
   distinct() |>
   filter(Groups %in% c("Dinoflagellates")) |>
   mutate(`Cells/L` = round(`Cells/L`),
-         threshold = c(params$dinophysis_threshold, NA, NA, NA, NA, NA, NA, NA, NA),
-         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA, NA, NA)) |>
+         threshold = c(NA, NA, NA, NA, NA),
+         threshold_alert = c(NA, NA, NA, NA, NA)) |>
   select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
   rename("Species" = "Specie", 
          "Potential Toxin" = "Toxin producing species",
