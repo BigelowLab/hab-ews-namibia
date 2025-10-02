@@ -1,18 +1,14 @@
 ---
 output: pdf_document
 params:
-  sample_date: "2022-02-07"
+  sample_date: "2024-01-15"
   station: "Aquapark 4"
   author: "Johnathan Evanilla"
-  alexandrium_threshold: 200
-  dinophysis_threshold: 1000
-  pseudo_nitzshia_threshold: 20000
-  prorocentrum_lima_threshold: 200
 always_allow_html: true
 ---
 
 
-```{r}
+```{r echo=FALSE, message=FALSE}
 source("../setup.R")
 ```
 
@@ -74,17 +70,16 @@ x <- read_phyto_data() |>
 ```{r echo=FALSE}
 # load environmental data
 
-environment <- read_excel("MultiMeter_Spectro-Data.xlsx") |>
-  mutate(date = as.Date(`Sampling date`, format="%Y-%m-%d")) |>
+environment <- read_env_data() |>
   filter(date == as.Date(params$sample_date),
-         Station == params$station) |>
-  select(-`Instrument model`)
+         Station == params$station)
 ```
 
 ```{r echo=FALSE}
 # load nutrient data
 
-nutrient <- read_excel("MultiMeter_Spectro-Data.xlsx", sheet=2, range = cell_cols("A:E"))
+nutrient <- read_nutrient_data() #|>
+  #filter(`Sample Date` == params$sample_date)
 ```
 
 
@@ -94,6 +89,13 @@ z <- x |>
 ```
 
 
+```{r echo=FALSE}
+thresh <- read_threshold()
+
+thresh_lut <- thresh$alert_threshold
+names(thresh_lut) <- thresh$species
+```
+
 
 ## Phytoplankton Summary
 
@@ -102,10 +104,8 @@ diatoms <- z |>
   distinct() |>
   filter(Groups %in% c("Diatom", "Diatoms")) |>
   mutate(`Cells/L` = round(`Cells/L`),
-         threshold = c(NA, NA, NA, NA, NA, NA, NA),
-         #threshold = add_threshold(),
-         threshold_alert = c(NA, NA, NA, NA, NA, NA, NA)) |>
-         #threshold_alert = add_threshold_alert()) |>
+         threshold = thresh_lut[.data[["Specie"]]],
+         threshold_alert = ifelse(`Cells/L` >= threshold, "ALERT", NA)) |>
   select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
   rename("Species" = "Specie", 
          "Potential Toxin" = "Toxin producing species",
@@ -130,8 +130,8 @@ dinos <- z |>
   distinct() |>
   filter(Groups %in% c("Dinoflagellates")) |>
   mutate(`Cells/L` = round(`Cells/L`),
-         threshold = c(NA, NA, NA, NA, NA),
-         threshold_alert = c(NA, NA, NA, NA, NA)) |>
+         threshold = thresh_lut[.data[["Specie"]]],
+         threshold_alert = ifelse(`Cells/L` >= threshold, "ALERT", NA)) |>
   select(all_of(c("Specie", "Toxin producing species", "Cells/L", "threshold", "threshold_alert"))) |>
   rename("Species" = "Specie", 
          "Potential Toxin" = "Toxin producing species",
@@ -229,9 +229,6 @@ Water quality parameters measured on `r params$sample_date` at `r params$station
 ## Nutrient
 
 ```{r echo=FALSE, warning=FALSE}
-nutrient |>
-  filter(`Sample Date` == params$sample_date)
-
 tribble(
   ~name,       ~value,
   "Nitrate",   nutrient$Nitrate[[1]],
