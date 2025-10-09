@@ -3,25 +3,23 @@ title: "THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 202
 output: word_document
 ---
 
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
+```{r  message=FALSE, echo=FALSE}
+source("../setup.R")
 ```
 
+
 ```{r message=FALSE, echo=FALSE}
-# read in the raw data
-x <- read_excel("Phytoplankton Total Cell_L_2018_2024.xlsx")
+x <- read_phyto_data()
+```
+
+```{r warning=FALSE}
+y <- read_toxin_data()
 ```
 
 
 ```{r message=FALSE, echo=FALSE}
 # make a new table format to use for the figures
 z <- x |>
-  distinct() |> # remove duplicates
-  filter(!is.na(`Cells/L`)) |> # remove NA cell/l rows
   select(-`SumOfTransect Count`, 
          -Groups, 
          -`Toxin producing species`,
@@ -29,12 +27,7 @@ z <- x |>
   pivot_wider(names_from = Specie, # columns that contains the names of the new columns
               values_from = `Cells/L`, # column that contains the values for the new columns
               values_fn = max, 
-              values_fill = 0) |>
-  mutate(`Date Collected` = as.Date(`Date Collected`), # change the date-time column to only date
-         year = format(`Date Collected`, format="%Y"), # create a year column
-         month = format(`Date Collected`, format="%m"), # create a month column
-         .before = Station) |> # specify the location of the new columns
-  arrange(`Date Collected`) # order the table by date
+              values_fill = 0) 
 ```
 
 
@@ -177,11 +170,31 @@ filter(dn_monthly_mean, Station == "Aquapark 1") |>
   geom_bar(stat = "identity", position = "dodge") +
   scale_y_continuous(expand = c(0, 0)) + 
   scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
-  labs(x = "Month", y = "Cells/L", fill = "Year") +
+  labs(x=NULL, x = "Month", y = "Cells/L", fill = "Year") +
   theme_classic() +
   theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
   guides(fill = guide_legend(nrow = 1)) +
   scale_fill_manual(name = "year", values = myColors)
+```
+
+
+```{r warning=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Aquapark 1. The Codex limit is 0.16 mg/kg."}
+filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
+  ggplot(aes(x = `Sampling Date`, y = okadaic_acid)) + 
+  geom_point() + 
+  geom_hline(yintercept = 0.16, color="red") +
+  scale_y_continuous(breaks = seq(0,1,0.1), limits=c(0,1)) +
+  theme_classic() +
+  labs(x=NULL, y="Total Okadaic Acid Group mg/kg") 
+```
+
+
+```{r warning=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Aquapark 1."}
+filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
+  ggplot(aes(x = `Sampling Date`, y = `Yessotoxin value`)) + 
+  geom_point() + 
+  theme_classic() +
+  labs(x=NULL, y="mg toxin /kg") 
 ```
 
 ### Aquapark 4 (PA WB4) for oysters
