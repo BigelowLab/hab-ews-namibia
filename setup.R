@@ -52,7 +52,11 @@ read_toxin_data <- function(file = here::here("data", "tbe_Biotoxin Tests_2019_2
                                                      Yessotoxin == "Not detected" ~ "0",
                                                      Yessotoxin == "under detection limit" ~ "0",
                                                      Yessotoxin == "Not tested" ~ NA)),
-           okadaic_acid = `Total Okadaic Acid value` + `Total DTX-1 value`)
+           okadaic_acid = `Total Okadaic Acid value` + `Total DTX-1 value`,
+           `PSP Value` = as.numeric(case_when(PSP == "Detected" ~ `PSP Value`,
+                                              PSP == "Not detected" ~ 0,
+                                              PSP == "under detection limit" ~ 0,
+                                              PSP == "Not tested" ~ NA)))
   
   return(r)
 }

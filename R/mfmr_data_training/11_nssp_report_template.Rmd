@@ -12,7 +12,7 @@ source("../setup.R")
 x <- read_phyto_data()
 ```
 
-```{r warning=FALSE}
+```{r warning=FALSE, echo=FALSE}
 y <- read_toxin_data()
 ```
 
@@ -178,7 +178,7 @@ filter(dn_monthly_mean, Station == "Aquapark 1") |>
 ```
 
 
-```{r warning=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Aquapark 1. The Codex limit is 0.16 mg/kg."}
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Aquapark 1. The Codex limit is 0.16 mg/kg."}
 filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
   ggplot(aes(x = `Sampling Date`, y = okadaic_acid)) + 
   geom_point() + 
@@ -189,7 +189,7 @@ filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (
 ```
 
 
-```{r warning=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Aquapark 1."}
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Aquapark 1."}
 filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
   ggplot(aes(x = `Sampling Date`, y = `Yessotoxin value`)) + 
   geom_point() + 
@@ -323,7 +323,19 @@ filter(al_monthly_mean, Station == "Aquapark 1") |>
 ```
 
 
+```{r warning=FALSE, echo=FALSE, fig.cap="PST tests for oysters for Aquapark 1. Red line represents the Codex limit."}
+filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
+  ggplot(aes(x = `Sampling Date`, y = `PSP Value`)) +
+  geom_point(color="blue") +
+  geom_hline(yintercept = 80, color="red") +
+  theme_classic() +
+  labs(x=NULL, y="PST value ug STX eq/100g") 
+```
+
+
 ### Aquapark 4 (PA WB4) for oysters
+
+Pond 1
 
 ```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 4 for 2018-2024", fig.width=8}
 filter(al_monthly_mean, Station == "Aquapark 4") |>
@@ -338,6 +350,8 @@ filter(al_monthly_mean, Station == "Aquapark 4") |>
   scale_fill_manual(name = "year", values = myColors)
 ```
 
+Pond 2
+
 ```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 4 (pond 2) for 2018-2024", fig.width=8}
 filter(al_monthly_mean, Station == "Nam Oysters SALT PANS") |>
   ggplot(aes(x = month, y = `Cells/L`, fill = year)) +
@@ -349,6 +363,16 @@ filter(al_monthly_mean, Station == "Nam Oysters SALT PANS") |>
   guides(fill = guide_legend(nrow = 1)) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual(name = "year", values = myColors)
+```
+
+```{r warning=FALSE, echo=FALSE, fig.cap="PST tests for oysters for Aquapark 1. Red line represents the Codex limit."}
+filter(y, Station %in% c("Aquapark 4 (112)", "Nam Oysters SALT PANS (115)")) |>
+  ggplot(aes(x = `Sampling Date`, y = `PSP Value`)) +
+  geom_point(aes(shape = Station, color=Station)) +
+  geom_hline(yintercept = 80, color="red") +
+  theme_classic() +
+  labs(x=NULL, y="PST value ug STX eq/100g") + 
+  theme(legend.position = "bottom")
 ```
 
 ### Lüderitz second lagoon (PA L2) for oysters
