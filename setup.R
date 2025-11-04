@@ -20,15 +20,31 @@ for (package in packages$cran){
 # project root
 here::i_am("setup.R")
 
+read_stations <- function(file = here::here("data", "stations.xlsx")) {
+  read_excel(file)
+}
+
+st <- read_stations()
+
+add_location_id <- function(x) {
+  
+  id_lut <- st$code
+  names(id_lut) <- st$name
+  
+  mutate(x, location_id = id_lut[.data[["Station"]]])
+}
+
 # Phytoplankton monitoring data reader function
 read_phyto_data <- function(#file = "data/Phytoplankton Total Cell_L_2018_2024.xlsx",
                             file = here::here("data", "Phytoplankton Total Cell_L_2018_2024.xlsx")) {
   read_excel(file) |>
+    add_location_id() |>
     mutate(`Date Collected` = as.Date(`Date Collected`),
            month = format(`Date Collected`, format="%m"),
            week = format(`Date Collected`, format="%U"),
            year = format(`Date Collected`, format="%Y"),
-           date = as.Date(`Date Collected`, format="%Y-%m-%d")) |>
+           date = as.Date(`Date Collected`, format="%Y-%m-%d"),
+           id = paste(year, week, location_id, sep="_")) |>
     arrange(`Date Collected`) |>
     distinct() |>
     filter(!is.na(`Cells/L`))
@@ -36,8 +52,11 @@ read_phyto_data <- function(#file = "data/Phytoplankton Total Cell_L_2018_2024.x
 
 read_toxin_data <- function(file = here::here("data", "tbe_Biotoxin Tests_2019_2024.xlsx")) {
   r <- read_excel(file) |>
+    add_location_id() |>
     mutate(`Sampling Date` = as.Date(`Sampling Date`),
            week = format(`Sampling Date`, format="%U"),
+           year = format(`Sampling Date`, format="%Y"),
+           id = paste(year, week, location_id, sep="_"),
            `Total Okadaic Acid value` = as.numeric(case_when(`Total Okadaic Acid` == "Detected" ~ `Total Okadaic Acid value`,
                                                              `Total Okadaic Acid` == "Not detected" ~ "0",
                                                              `Total Okadaic Acid` == "under detection limit" ~ "0",
@@ -56,7 +75,13 @@ read_toxin_data <- function(file = here::here("data", "tbe_Biotoxin Tests_2019_2
            `PSP Value` = as.numeric(case_when(PSP == "Detected" ~ `PSP Value`,
                                               PSP == "Not detected" ~ 0,
                                               PSP == "under detection limit" ~ 0,
-                                              PSP == "Not tested" ~ NA)))
+                                              PSP == "Not tested" ~ NA,
+                                              PSP == NA ~ NA)),
+           `ASP Value` = as.numeric(case_when(ASP == "Detected" ~ `ASP Value`,
+                                              ASP == "Not detected" ~ 0,
+                                              ASP == "under detection limit" ~ 0,
+                                              ASP == "Not tested" ~ NA,
+                                              ASP == NA ~ NA)))
   
   return(r)
 }
