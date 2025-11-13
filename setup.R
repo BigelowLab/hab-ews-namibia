@@ -34,9 +34,16 @@ add_location_id <- function(x) {
   mutate(x, location_id = id_lut[.data[["Station"]]])
 }
 
+add_subregion <- function(x) {
+  sub_lut <- st$subregion
+  names(sub_lut) <- st$name
+  
+  mutate(x, subregion = sub_lut[.data[["Station"]]])
+}
+
 # Phytoplankton monitoring data reader function
 read_phyto_data <- function(#file = "data/Phytoplankton Total Cell_L_2018_2024.xlsx",
-                            file = here::here("data", "Phytoplankton Total Cell_L_2018_2024.xlsx")) {
+                            file = here::here("data", "phytoplankton_data.xlsx")) {
   read_excel(file) |>
     add_location_id() |>
     mutate(`Date Collected` = as.Date(`Date Collected`),
@@ -47,10 +54,11 @@ read_phyto_data <- function(#file = "data/Phytoplankton Total Cell_L_2018_2024.x
            id = paste(year, week, location_id, sep="_")) |>
     arrange(`Date Collected`) |>
     distinct() |>
-    filter(!is.na(`Cells/L`))
+    filter(!is.na(`Cells/L`)) |>
+    add_subregion()
 }
 
-read_toxin_data <- function(file = here::here("data", "tbe_Biotoxin Tests_2019_2024.xlsx")) {
+read_toxin_data <- function(file = here::here("data", "biotoxin_data.xlsx")) {
   r <- read_excel(file) |>
     add_location_id() |>
     mutate(`Sampling Date` = as.Date(`Sampling Date`),
@@ -111,5 +119,5 @@ read_microbio_data <- function(file = here::here("data", "Microbiology Data for 
   return(r)
 }
 
-
+source(here::here("code", "21_phyto_functions.R"))
 
