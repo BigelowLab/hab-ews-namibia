@@ -22,22 +22,13 @@ y <- read_toxin_data()
 
 ```{r message=FALSE, echo=FALSE}
 # make a new table format to use for the figures
-z <- x |>
-  select(-`SumOfTransect Count`, 
-         -Groups, 
-         -`Toxin producing species`,
-         -`Microscope fields`) |> # remove columns that we won't use
-  pivot_wider(names_from = Specie, # columns that contains the names of the new columns
-              values_from = `Cells/L`, # column that contains the values for the new columns
-              values_fn = max, 
-              values_fill = 0) 
 ```
 
 ```{r echo=FALSE}
 # assign each year to a custom color palette
 # found the answer here: https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin
 library(RColorBrewer)
-years <- unique(z$year)
+years <- unique(x$year)
 myColors <- brewer.pal(length(years),"Spectral")
 names(myColors) <- years
 ```
@@ -147,18 +138,7 @@ plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="l2")
 
 
 ```{r message=FALSE, echo=FALSE, fig.cap="Dinophysis spp. cells-L – causative species for lipophillics at Luderitz oyster sites", fig.width=8}
-filter(z, Station %in% c("Luderitz Mariculture", 
-                         "NamOyster CC Lüderitz", 
-                         "Tetelestai Mariculture Lüderitz")) |>
-  select(`Date Collected`, year, month, `Dinophysis sp.`, `Dinophysis acuminata`, `Dinophysis fortii`, `Dinophysis accuta`) |>
-  pivot_longer(cols = c(`Dinophysis sp.`, `Dinophysis acuminata`, `Dinophysis fortii`, `Dinophysis accuta`),
-               names_to = "Species",
-               values_to = "cells") |>
-  filter(cells > 0) |>
-  ggplot(aes(x = `Date Collected`, y = cells)) +
-  geom_point() +
-  theme_classic() +
-  labs(x = "Date", y = "Cells/L")
+plot_phyto_scatter(x, subregion="l2", group="dst")
 ```
 
 ```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Lüderitz second lagoon. The Codex limit is 0.16 mg/kg."}
@@ -249,7 +229,7 @@ plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="l2")
 ```
 
 ```{r fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz oyster sites", fig.width=8}
-plot_phyto_scatter(z, group = "pst", subregion = "l2")
+plot_phyto_scatter(x, group = "pst", subregion = "l2")
 ```
 
 

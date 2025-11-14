@@ -8,21 +8,9 @@ get_monthly_stats <- function(x, group) {
   phyto_sp <- switch(group,
                      ast = c("Pseudo-nitzschia sp.", "Pseudo-nitzschia delicatissima gr.", "Pseudo-nitzschia seriata gr."),
                      dst = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", "Dinophysis rotundata", "Dinophysis sp."),
-                     pst = c("Alexandrium sp.", "Alexandrium Tamarense", "Alexandrium catenella", "Alexandrium minutum"))
+                     pst = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", "Alexandrium minutum"))
 
-  x |>
-    select(-`SumOfTransect Count`, 
-           -Groups, 
-           -`Toxin producing species`,
-           -`Microscope fields`) |> # remove columns that we won't use
-    pivot_wider(names_from = Specie, # columns that contains the names of the new columns
-                values_from = `Cells/L`, # column that contains the values for the new columns
-                values_fn = max, 
-                values_fill = 0) |>
-    select(all_of(c("year", "month", "subregion", phyto_sp))) |>
-    pivot_longer(cols = all_of(phyto_sp),
-                 names_to = "Species",
-                 values_to = "cells") |>
+  filter(x, Species %in% phyto_sp) |>
     group_by(subregion, year, month) |>
     summarise(mean = mean(cells),
               med = median(cells),
@@ -82,24 +70,17 @@ plot_phyto_heatmap <- function(monthly_phyto,
 plot_phyto_scatter <- function(x, subregion, threshold, group) {
   
   plot_spec = switch(group,
-                     "ast" = NULL,
-                     "dst" = NULL,
-                     "pst" = c("Alexandrium sp.", "Alexandrium minutum", "Alexandrium Tamarense", 
-                               "Alexandrium catenella", "alexandrium Tamarense"))
+                     "ast" = c("Pseudo-nitzschia sp.", "Pseudo-nitzschia delicatissima gr.", "Pseudo-nitzschia seriata gr."),
+                     "dst" = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", "Dinophysis rotundata", "Dinophysis sp."),
+                     "pst" = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", "Alexandrium minutum"))
   
-  plot_data <- filter(z, subregion %in% !!subregion)
+  plot_data <- filter(x, subregion %in% !!subregion)
   
-  select(plot_data, `Date Collected`, year, month, all_of(plot_spec)) |>
-    pivot_longer(cols = plot_spec,
-                 names_to = "Species",
-                 values_to = "cells") |>
+  filter(plot_data, Species %in% plot_spec) |>
     filter(cells > 0) |>
     ggplot(aes(x = `Date Collected`, y = cells)) +
     geom_point(color = "blue") +
     theme_classic() +
     labs(x = "Date", y = "Cells/L")
-  
 }
-
-
 
