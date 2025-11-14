@@ -65,19 +65,41 @@ plot_phyto_heatmap <- function(monthly_phyto,
                                subregion) {
   
   breaks = switch(group,
-                  "ast" = c(0,1000,10000,100000), 
+                  "ast" = c(0,500, 1000, 10000,100000), 
                   "dst" = c(0,500,1000,1500,2000), 
                   "pst" = c(100,200,500,1000))
   
-  filter(monthly_phyto, subregion == subregion) |>
+  filter(monthly_phyto, subregion == !!subregion) |>
     ggplot(aes(x=month, y=year, fill=mean)) +
     geom_tile() +
     scale_x_discrete(labels=month.abb) +
     scale_fill_fermenter(breaks = breaks, palette="Spectral") +
     theme_classic() +
-    theme(axis.title = element_blank())
+    theme(axis.title = element_blank(), legend.title=element_blank())
 }
 
+
+plot_phyto_scatter <- function(x, subregion, threshold, group) {
+  
+  plot_spec = switch(group,
+                     "ast" = NULL,
+                     "dst" = NULL,
+                     "pst" = c("Alexandrium sp.", "Alexandrium minutum", "Alexandrium Tamarense", 
+                               "Alexandrium catenella", "alexandrium Tamarense"))
+  
+  plot_data <- filter(z, subregion %in% !!subregion)
+  
+  select(plot_data, `Date Collected`, year, month, all_of(plot_spec)) |>
+    pivot_longer(cols = plot_spec,
+                 names_to = "Species",
+                 values_to = "cells") |>
+    filter(cells > 0) |>
+    ggplot(aes(x = `Date Collected`, y = cells)) +
+    geom_point(color = "blue") +
+    theme_classic() +
+    labs(x = "Date", y = "Cells/L")
+  
+}
 
 
 

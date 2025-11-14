@@ -58,7 +58,7 @@ read_phyto_data <- function(#file = "data/Phytoplankton Total Cell_L_2018_2024.x
     add_subregion()
 }
 
-read_toxin_data <- function(file = here::here("data", "biotoxin_data.xlsx")) {
+read_toxin_data <- function(file = here::here("data", "tbe_Biotoxin Tests_2019_2024.xlsx")) {
   r <- read_excel(file) |>
     add_location_id() |>
     mutate(`Sampling Date` = as.Date(`Sampling Date`),
@@ -89,7 +89,8 @@ read_toxin_data <- function(file = here::here("data", "biotoxin_data.xlsx")) {
                                               ASP == "Not detected" ~ 0,
                                               ASP == "under detection limit" ~ 0,
                                               ASP == "Not tested" ~ NA,
-                                              ASP == NA ~ NA)))
+                                              ASP == NA ~ NA))) |>
+    add_subregion()
   
   return(r)
 }
@@ -120,4 +121,6 @@ read_microbio_data <- function(file = here::here("data", "Microbiology Data for 
 }
 
 source(here::here("code", "21_phyto_functions.R"))
+source(here::here("code", "23_biotoxin_functions.R"))
+
 

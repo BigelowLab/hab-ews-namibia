@@ -3,6 +3,10 @@ title: "THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 202
 output: word_document
 ---
 
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
 ```{r  message=FALSE, echo=FALSE}
 source("../setup.R")
 ```
@@ -104,22 +108,12 @@ plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="wb1")
 
 
 ```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Aquapark 1. The Codex limit is 0.16 mg/kg."}
-filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
-  ggplot(aes(x = `Sampling Date`, y = okadaic_acid)) + 
-  geom_point() + 
-  geom_hline(yintercept = 0.16, color="red") +
-  scale_y_continuous(breaks = seq(0,1,0.1), limits=c(0,1)) +
-  theme_classic() +
-  labs(x=NULL, y="Total Okadaic Acid Group mg/kg") 
+plot_okadaic(y, subregion="wb1")
 ```
 
 
 ```{r warning=FALSE, echo=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Aquapark 1."}
-filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
-  ggplot(aes(x = `Sampling Date`, y = `Yessotoxin value`)) + 
-  geom_point() + 
-  theme_classic() +
-  labs(x=NULL, y="mg toxin /kg") 
+plot_yessotoxin(y, subregion = "wb1")
 ```
 
 ### Aquapark 4 (PA WB4) for oysters
@@ -130,6 +124,16 @@ plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="wb4_pond1")
 
 ```{r message=FALSE, echo=FALSE, fig.cap="Mean Dinophysis spp cells/L in Aquapark 4 (pond 2) for 2018-2024", fig.width=8}
 plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="wb4_pond2")
+```
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Aquapark 4. The Codex limit is 0.16 mg/kg."}
+plot_okadaic(y, subregion=c("wb4_pond1", "wb4_pond2"))
+```
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Aquapark 4."}
+plot_yessotoxin(y, subregion = c("wb4_pond1", "wb4_pond2"))
 ```
 
 
@@ -157,10 +161,24 @@ filter(z, Station %in% c("Luderitz Mariculture",
   labs(x = "Date", y = "Cells/L")
 ```
 
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Lüderitz second lagoon. The Codex limit is 0.16 mg/kg."}
+plot_okadaic(y, subregion=c("l2"))
+```
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Lüderitz second lagoon."}
+plot_yessotoxin(y, subregion = c("l2"))
+```
+
 ###	Lüderitz (PA L1) for abalone 
 
 ```{r message=FALSE, echo=FALSE, fig.cap="Dinophysis spp. cells-L (>0) – causative species for lipophillics at Luderitz abalone sites", fig.width=8}
 plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="l1")
+```
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in abalone for Lüderitz. The Codex limit is 0.16 mg/kg."}
+plot_okadaic(y, subregion=c("l1"))
 ```
 
 
@@ -195,6 +213,10 @@ filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (
 ```
 
 
+```{r fig.cap="PST tests in abalone at Aquapark 1 Red line represents the Codex limit."}
+plot_saxitoxin(y, subregion = "wb1")
+```
+
 ### Aquapark 4 (PA WB4) for oysters
 
 Pond 1
@@ -226,27 +248,23 @@ filter(y, Station %in% c("Aquapark 4 (112)", "Nam Oysters SALT PANS (115)")) |>
 plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="l2")
 ```
 
+```{r fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz oyster sites", fig.width=8}
+plot_phyto_scatter(z, group = "pst", subregion = "l2")
+```
 
-```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz oyster sites", fig.width=8}
-filter(z, Station %in% c("Luderitz Mariculture", 
-                         "NamOyster CC Lüderitz", 
-                         "Tetelestai Mariculture Lüderitz")) |>
-  select(`Date Collected`, year, month, `Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
-                        `Alexandrium catenella`, `alexandrium Tamarense`) |>
-  pivot_longer(cols = c(`Alexandrium sp.`, `Alexandrium minutum`, `Alexandrium Tamarense`, 
-                        `Alexandrium catenella`, `alexandrium Tamarense`),
-               names_to = "Species",
-               values_to = "cells") |>
-  filter(cells > 0) |>
-  ggplot(aes(x = `Date Collected`, y = cells)) +
-  geom_point() +
-  theme_classic() +
-  labs(x = "Date", y = "Cells/L")
+
+```{r fig.cap="PST tests in oysters at Lüderitz. Red line represents the Codex limit."}
+plot_saxitoxin(y, subregion = "l2")
 ```
 
 ### Lüderitz (PA L1) for abalone
 
 ```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz abalone sites", fig.width=8}
 plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="l1")
+```
+
+
+```{r fig.cap="PST tests in abalone at Lüderitz. Red line represents the Codex limit."}
+plot_saxitoxin(y, subregion = "l1")
 ```
 
