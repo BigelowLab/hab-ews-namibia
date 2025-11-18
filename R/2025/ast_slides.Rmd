@@ -1,0 +1,107 @@
+---
+title: "AST and *Pseudo-nitzschia sp.* data 2018-2025"
+output: powerpoint_presentation
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width=10)
+```
+
+
+```{r  message=FALSE, echo=FALSE}
+source("../setup.R")
+```
+
+
+```{r message=FALSE, echo=FALSE}
+x <- read_phyto_data()
+```
+
+```{r warning=FALSE, echo=FALSE}
+y <- read_toxin_data()
+```
+
+```{r echo=FALSE}
+# assign each year to a custom color palette
+# found the answer here: https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin
+library(RColorBrewer)
+years <- unique(x$year)
+myColors <- brewer.pal(length(years),"Spectral")
+names(myColors) <- years
+```
+
+
+```{r message=FALSE, echo=FALSE}
+# find the site-specific annual monthly mean for each of the pseudo-nitzschia groups counted
+pn_monthly_mean <- get_monthly_stats(x, group="ast")
+```
+
+
+### Aquapark 1 (PA WB1) for oysters
+
+```{r fig.cap="*Pseudo-nitzschia* cells/L in Aquapark 1"}
+plot_timeseries(x, subregion="wb1", group="ast")
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Aquapark 1"}
+plot_phyto_barplot(pn_monthly_mean, colors=myColors, subregion = "wb1")
+```
+
+
+***
+
+### Aquapark 4 (PA WB4) for oysters
+
+```{r fig.cap="*Pseudo-nitzschia* cells/L in Aquapark 4 (pond 1)"}
+plot_timeseries(x, subregion="wb4_pond1", group="ast")
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Aquapark 4 (pond 1)"}
+plot_phyto_barplot(pn_monthly_mean, colors=myColors, subregion = "wb4_pond1")
+```
+
+
+***
+
+```{r fig.cap="*Pseudo-nitzschia* cells/L in Aquapark 4 (pond 2)"}
+plot_timeseries(x, subregion="wb4_pond2", group="ast")
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Aquapark 4 (pond 2)"}
+plot_phyto_barplot(pn_monthly_mean, colors=myColors, subregion = "wb4_pond2")
+```
+
+***
+
+### Lüderitz second lagoon (PA L2) for oysters
+
+```{r fig.cap="*Pseudo-nitzschia* cells/L in Lüderitz oyster sites"}
+plot_timeseries(x, subregion="l2", group="ast")
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia sp. Average cells/L/month in Luderitz"}
+plot_phyto_barplot(pn_monthly_mean, colors=myColors, subregion = "l2")
+```
+
+***
+
+### Lüderitz (PA L1) for abalone
+
+```{r fig.cap="*Pseudo-nitzschia* cells/L in Lüderitz abalone sites"}
+plot_timeseries(x, subregion="l1", group="ast")
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Pseudo-nitzschia spp. cells/L/month at Luderitz abalone sites"}
+plot_phyto_barplot(pn_monthly_mean, colors=myColors, subregion = "l1")
+```
+

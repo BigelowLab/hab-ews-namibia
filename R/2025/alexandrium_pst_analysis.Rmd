@@ -1,0 +1,145 @@
+---
+title: "Lipophilic toxins (or DST) and *Dinophysis* spp"
+output: powerpoint_presentation
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height=5)
+```
+
+
+```{r  message=FALSE, echo=FALSE}
+source("../setup.R")
+```
+
+
+```{r message=FALSE, echo=FALSE}
+x <- read_phyto_data() |>
+  mutate(year = as.numeric(year), 
+         doy = as.numeric(format(date, format = "%j")))
+```
+
+```{r warning=FALSE, echo=FALSE}
+y <- read_toxin_data() |>
+  mutate(year = as.numeric(year), 
+         doy = as.numeric(format(`Sampling Date`, format = "%j")),
+         pst_class = as.character(recode_classification(`PSP Value`, lut=c(0,0.001,80))))
+```
+
+
+```{r}
+pst_spec = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", "Alexandrium minutum")
+```
+
+
+### Aquapark 1 (PA WB1) for oysters
+
+***
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "101", species = pst_spec)
+```
+
+***
+
+```{r}
+plot_pst_heatmap(y, "wb1")
+```
+
+***
+
+### Aquapark 4 (PA WB4) for oysters
+
+***
+
+#### Pond 1
+
+***
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "112", species = pst_spec)
+```
+
+
+
+
+***
+
+```{r}
+plot_pst_heatmap(y, "wb4_pond1")
+```
+
+
+***
+
+#### Pond 2
+
+***
+
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "115", species = pst_spec)
+```
+
+
+***
+
+```{r}
+plot_pst_heatmap(y, "wb4_pond2")
+```
+
+***
+
+
+### Lüderitz second lagoon (PA L2) for oysters
+
+***
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "106", species = pst_spec)
+```
+
+***
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "111", species = pst_spec)
+```
+
+***
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "120", species = pst_spec)
+```
+
+***
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "121", species = pst_spec)
+```
+
+***
+
+```{r}
+plot_pst_heatmap(y, "l2")
+```
+
+***
+
+
+
+###	Lüderitz (PA L1) for abalone 
+
+***
+
+```{r}
+plot_phyto_heatmap_facet(x, station = "103", species = pst_spec)
+```
+
+***
+
+```{r}
+plot_pst_heatmap(y, "l1")
+```
+
+***
+

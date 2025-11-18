@@ -1,0 +1,188 @@
+---
+title: "Lipophilic toxins (or DST) and *Dinophysis* spp"
+output: powerpoint_presentation
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 10, fig.height=5)
+```
+
+
+```{r  message=FALSE, echo=FALSE}
+source("../setup.R")
+```
+
+
+```{r message=FALSE, echo=FALSE}
+x <- read_phyto_data()
+```
+
+```{r warning=FALSE, echo=FALSE}
+y <- read_toxin_data()
+```
+
+
+```{r echo=FALSE}
+# assign each year to a custom color palette
+# found the answer here: https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin
+library(RColorBrewer)
+years <- unique(x$year)
+myColors <- brewer.pal(length(years),"Spectral")
+names(myColors) <- years
+```
+
+***
+
+### Aquapark 1 (PA WB1) for oysters
+
+***
+
+```{r message=FALSE, echo=FALSE}
+# find the site-specific annual monthly mean for each of the dinophysis groups counted
+dn_monthly_mean <- get_monthly_stats(x, group = "dst")
+```
+
+```{r message=FALSE, echo=FALSE, fig.cap="Dinophysis sp. Average cells/L/month in Aquapark 1"}
+plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="wb1")
+```
+
+***
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Aquapark 1. The Codex limit is 0.16 mg/kg."}
+plot_okadaic(y, subregion="wb1")
+```
+
+***
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Aquapark 1."}
+plot_yessotoxin(y, subregion = "wb1")
+```
+
+***
+
+```{r}
+match_phyto_toxin(x, y, group="dst", subregion = "wb1") |>
+  ggplot(aes(x=cells, y=okadaic_acid)) + 
+  geom_point() +
+  theme_classic() +
+  geom_hline(aes(yintercept = 0.16), linetype = "dotted", color="red")
+```
+
+***
+
+### Aquapark 4 (PA WB4) for oysters
+
+***
+
+```{r fig.cap="Dinophysis sp. Average cells/L/month in Aquapark 4 (pond 1)"}
+plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="wb4_pond1")
+```
+
+***
+
+```{r fig.cap="Total okadaic acid vs Dinophysis spp. abundance in Aquapark 4 (pond 1)"}
+match_phyto_toxin(x, y, group="dst", subregion = "wb4_pond1") |>
+  ggplot(aes(x=cells, y=okadaic_acid)) + 
+  geom_point() +
+  theme_classic() +
+  geom_hline(aes(yintercept = 0.16), linetype = "dotted", color="red")
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Mean Dinophysis spp cells/L in Aquapark 4 (pond 2)"}
+plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="wb4_pond2")
+```
+
+***
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Aquapark 4. The Codex limit is 0.16 mg/kg."}
+plot_okadaic(y, subregion=c("wb4_pond1", "wb4_pond2"))
+```
+
+***
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Aquapark 4."}
+plot_yessotoxin(y, subregion = c("wb4_pond1", "wb4_pond2"))
+```
+
+***
+
+```{r fig.cap="Total okadaic acid vs Dinophysis spp. abundance in Aquapark 4 (pond 2)"}
+match_phyto_toxin(x, y, group="dst", subregion = "wb4_pond2") |>
+  ggplot(aes(x=cells, y=okadaic_acid)) + 
+  geom_point() +
+  theme_classic() +
+  geom_hline(aes(yintercept = 0.16), linetype = "dotted", color="red")
+```
+
+***
+
+### Lüderitz second lagoon (PA L2) for oysters
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Dinophysis sp. Average cells/L/month in Luderitz oyster sites"}
+plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="l2")
+```
+
+
+***
+
+
+```{r message=FALSE, echo=FALSE, fig.cap="Dinophysis spp. cells-L – causative species for lipophillics at Luderitz oyster sites"}
+plot_phyto_scatter(x, subregion="l2", group="dst")
+```
+
+***
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in oysters for Lüderitz second lagoon. The Codex limit is 0.16 mg/kg."}
+plot_okadaic(y, subregion=c("l2"))
+```
+
+***
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Yessotoxin (YTX) Group toxins in oysters from Lüderitz second lagoon."}
+plot_yessotoxin(y, subregion = c("l2"))
+```
+
+***
+
+```{r fig.cap="Total okadaic acid vs Dinophysis spp. abundance in Lüderitz oyster sites"}
+match_phyto_toxin(x, y, group="dst", subregion = "l2") |>
+  ggplot(aes(x=cells, y=okadaic_acid)) + 
+  geom_point() +
+  theme_classic() +
+  geom_hline(aes(yintercept = 0.16), linetype = "dotted", color="red")
+```
+
+***
+
+###	Lüderitz (PA L1) for abalone 
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Dinophysis spp. cells-L (>0) – causative species for lipophillics at Luderitz abalone sites"}
+plot_phyto_barplot(dn_monthly_mean, colors=myColors, subregion="l1")
+```
+
+***
+
+```{r warning=FALSE, echo=FALSE, fig.cap="Total Okadaic Acid Group test results in abalone for Lüderitz. The Codex limit is 0.16 mg/kg."}
+plot_okadaic(y, subregion=c("l1"))
+```
+
+***
+
+```{r fig.cap="Total okadaic acid vs Dinophysis spp. abundance in Lüderitz abalone sites"}
+match_phyto_toxin(x, y, group="dst", subregion = "l1") |>
+  ggplot(aes(x=cells, y=okadaic_acid)) + 
+  geom_point() +
+  theme_classic() +
+  geom_hline(aes(yintercept = 0.16), linetype = "dotted", color="red")
+```
+

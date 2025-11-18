@@ -1,0 +1,168 @@
+---
+title: "PSTs and *Alexandrium* spp"
+output: powerpoint_presentation
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 9)
+```
+
+
+```{r  message=FALSE, echo=FALSE}
+source("../setup.R")
+```
+
+
+```{r message=FALSE, echo=FALSE}
+x <- read_phyto_data()
+```
+
+```{r warning=FALSE, echo=FALSE}
+y <- read_toxin_data()
+```
+
+
+```{r echo=FALSE}
+# assign each year to a custom color palette
+# found the answer here: https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin
+library(RColorBrewer)
+years <- unique(x$year)
+myColors <- brewer.pal(length(years),"Spectral")
+names(myColors) <- years
+```
+
+
+```{r message=FALSE, echo=FALSE}
+# find the site-specific annual monthly mean for each of the alexandrium groups counted
+al_monthly_mean <- get_monthly_stats(x, group="pst")
+```
+
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 1"}
+plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="wb1")
+```
+
+***
+
+```{r}
+plot_phyto_heatmap(al_monthly_mean, subregion="wb1", group="pst")
+```
+
+***
+
+
+```{r warning=FALSE, echo=FALSE, fig.cap="PST tests for oysters for Aquapark 1. Red line represents the Codex limit."}
+filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
+  ggplot(aes(x = `Sampling Date`, y = `PSP Value`)) +
+  geom_point(color="blue") +
+  geom_hline(yintercept = 80, color="red") +
+  theme_classic() +
+  labs(x=NULL, y="PST value ug STX eq/100g") 
+```
+
+***
+
+```{r fig.cap="PST toxicity vs Alexandrium cell abundance in Aquapark 1"}
+match_phyto_toxin(x, y, group="pst", subregion = "wb1") |>
+  ggplot(aes(x=cells, y=`PSP Value`)) + 
+  geom_point() +
+  geom_hline(aes(yintercept = 80), linetype = "dotted", color="red") +
+  theme_classic()
+```
+
+***
+
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 4 (pond1)"}
+plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="wb4_pond1")
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium sp. Average cells/L/month in Aquapark 4 (pond 2)"}
+plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="wb4_pond2")
+```
+
+***
+
+```{r warning=FALSE, echo=FALSE, fig.cap="PST tests for oysters for Aquapark 4. Red line represents the Codex limit."}
+filter(y, Station %in% c("Aquapark 4 (112)", "Nam Oysters SALT PANS (115)")) |>
+  ggplot(aes(x = `Sampling Date`, y = `PSP Value`)) +
+  geom_point(aes(shape = Station, color=Station)) +
+  geom_hline(yintercept = 80, color="red") +
+  theme_classic() +
+  labs(x=NULL, y="PST value ug STX eq/100g") + 
+  theme(legend.position = "bottom")
+```
+
+
+***
+
+```{r fig.cap="PST toxicity vs Alexandrium cell abundance in Aquapark 4 (pond 1)"}
+match_phyto_toxin(x, y, group="pst", subregion = "wb4_pond1") |>
+  ggplot(aes(x=cells, y=`PSP Value`)) + 
+  geom_point() +
+  geom_hline(aes(yintercept = 80), linetype = "dotted", color="red") +
+  theme_classic()
+```
+
+***
+
+```{r fig.cap="PST toxicity vs Alexandrium cell abundance in Aquapark 4 (pond 2)"}
+match_phyto_toxin(x, y, group="pst", subregion = "wb4_pond2") |>
+  ggplot(aes(x=cells, y=`PSP Value`)) + 
+  geom_point() +
+  geom_hline(aes(yintercept = 80), linetype = "dotted", color="red") +
+  theme_classic()
+```
+
+***
+
+```{r fig.cap="Alexandrium sp. Average cells/L/month in Luderitz oyster sites"}
+plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="l2")
+```
+
+***
+
+```{r fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz oyster sites"}
+plot_phyto_scatter(x, group = "pst", subregion = "l2")
+```
+
+***
+
+```{r fig.cap="PST tests in oysters at Lüderitz. Red line represents the Codex limit."}
+plot_saxitoxin(y, subregion = "l2")
+```
+
+***
+
+```{r fig.cap="PST toxicity vs Alexandrium cell abundance in Luderitz oyster sites"}
+match_phyto_toxin(x, y, group="pst", subregion = "l2") |>
+  ggplot(aes(x=cells, y=`PSP Value`)) + 
+  geom_point() +
+  geom_hline(aes(yintercept = 80), linetype = "dotted", color="red") +
+  theme_classic()
+```
+
+***
+
+```{r message=FALSE, echo=FALSE, fig.cap="Alexandrium spp. cells-L (>0) – causative species for PSTs at Luderitz abalone sites"}
+plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="l1")
+```
+
+***
+
+```{r fig.cap="PST tests in abalone at Lüderitz. Red line represents the Codex limit."}
+plot_saxitoxin(y, subregion = "l1")
+```
+
+***
+
+```{r fig.cap="PST toxicity vs Alexandrium cell abundance in Luderitz abalone sites"}
+match_phyto_toxin(x, y, group="pst", subregion = "l1") |>
+  ggplot(aes(x=cells, y=`PSP Value`)) + 
+  geom_point() +
+  geom_hline(aes(yintercept = 80), linetype = "dotted", color="red") +
+  theme_classic()
+```
+
