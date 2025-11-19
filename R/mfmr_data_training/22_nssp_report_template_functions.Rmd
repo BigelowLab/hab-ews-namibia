@@ -1,16 +1,23 @@
 ---
-title: "THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 2024/25"
+title: 
 output: word_document
 ---
 
+
 ```{r include = FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.id="pressure")
 ```
 
 ```{r  message=FALSE, echo=FALSE}
 source("../setup.R")
 ```
 
+```{r, echo=FALSE, fig.align='center', out.width="50%", height="50%"}
+# adds coat of arms to report
+include_graphics(path = "../data/coat of Arms JPG.jpg")
+```
+
+# THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 2024/25
 
 ```{r message=FALSE, echo=FALSE}
 x <- read_phyto_data()

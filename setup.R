@@ -153,9 +153,9 @@ read_threshold <- function(#file = "data/alert_thresholds.xlsx",
   read_excel(file)
 }
 
-read_microbio_data <- function(file = here::here("data", "Microbiology Data for 2025.xlsx")) {
+read_microbio_data <- function() {
   mb24 <- read_excel(here::here("data", "tbe_Microbiology Data 2024.xlsx"))
-  mb25 <- read_excel(file)
+  mb25 <- read_excel(here::here("data", "Microbiology Data for 2025.xlsx"))
   
   r <- bind_rows(mb24, mb25)
   

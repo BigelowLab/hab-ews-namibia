@@ -29,23 +29,24 @@ plot_vibrio <- function(mbdata,
                                     "Vibrio parahaemolyticus", "Vibrio cholera"),
                         station) {
   
-  vib_lut <- c("Vibrio vulnificus", "Vibrio vulfnificus", "Vibrio vulfunicus", "vibrio vulnificus", "Vibrio cholera", "Vibrio parahaemolyticus")
-  names(vib_lut) <- c("Vibrio vulnificus", "Vibrio vulnificus", "Vibrio vulnificus", "Vibrio vulnificus", "Vibrio cholera", "Vibrio parahaemolyticus")
+  vib_lut <- c("Vibrio vulnificus", "Vibrio vulnificus", "Vibrio vulnificus", "Vibrio vulnificus", "Vibrio cholera", "Vibrio parahaemolyticus", "Vibrio campbelli", "Vibrio alginolyticus")
+  names(vib_lut) <- c("Vibrio vulnificus", "Vibrio vulfnificus", "Vibrio vulfunicus", "vibrio vulnificus", "Vibrio cholera", "Vibrio parahaemolyticus", "Vibrio campbelli", "Vibrio alginolyticus")
   
   plot_data <- filter(mbdata, 
                       `Test run` %in% species, 
                       Station %in% station) |>
-    mutate(Counts = as.factor(case_when(Counts %in% c("<25", "<25g", "-25", "25g", "Absebt", "Absent", "absent", "<10") ~ "Absent",
+    mutate(Counts = as.factor(case_when(Counts %in% c("<25", "<25g", "-25", "25g", "Absebt", "Absent", 
+                                                      "absent", "<10", "<18", "<18g", "absent/25g", "45g", "Absent/25g") ~ "Absent",
                                         Counts %in% c("Present", "Present/25g", ">25") ~ "Present",
                                         !is.na(as.numeric(Counts)) ~ "Present")),
            species = `Test run`,
            `Test run` = vib_lut[.data[["species"]]])
   
-  ggplot(plot_data, aes(x = `Sampling date`, y = `Test run`, fill = Counts)) +
-    geom_tile() +
+  ggplot(plot_data, aes(x = `Sampling date`, y = `Test run`, color = Counts)) +
+    geom_point(shape="square", size=6) +
     scale_x_datetime(date_labels = "%d-%b-%y", 
                      breaks = plot_data$`Sampling date`) +
-    scale_fill_manual(values = c("Absent" = "blue", "Present" = "red")) +
+    scale_color_manual(values = c("Absent" = "blue", "Present" = "red")) +
     theme_classic() +
     theme(axis.title = element_blank(), 
           legend.title = element_blank(),
