@@ -6,9 +6,12 @@
 get_monthly_stats <- function(x, group) {
   
   phyto_sp <- switch(group,
-                     ast = c("Pseudo-nitzschia sp.", "Pseudo-nitzschia delicatissima gr.", "Pseudo-nitzschia seriata gr."),
-                     dst = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", "Dinophysis rotundata", "Dinophysis sp."),
-                     pst = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", "Alexandrium minutum"))
+                     ast = c("Pseudo-nitzschia sp.", "Pseudo-nitzschia delicatissima gr.", 
+                             "Pseudo-nitzschia seriata gr."),
+                     dst = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", 
+                             "Dinophysis rotundata", "Dinophysis sp."),
+                     pst = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", 
+                             "Alexandrium minutum"))
 
   filter(x, Species %in% phyto_sp) |>
     group_by(subregion, year, month) |>
@@ -43,28 +46,56 @@ plot_phyto_barplot <- function(monthly_phyto,
 
 
 #' Plots heatmap of monthly cell abundance statistic (ie mean, median, etc)
-#' @param monthly_phyto table of computed cell abundance statistics, one row per year, month
+#' @param x table phytoplankton monitoring data
 #' @param group character string indicating which toxin producing group to use
 #' @param subregion character string indicating which subregion to make the plot for
 #' @returns a ggplot heatmap
-plot_phyto_heatmap <- function(monthly_phyto,
-                               #mapping = ,
-                               group = c("ast", "dst", "pst")[1],
+plot_phyto_heatmap <- function(x,
+                               species,
                                subregion) {
   
-  breaks = switch(group,
-                  "ast" = c(0,500, 1000, 10000,100000), 
-                  "dst" = c(0,500,1000,1500,2000), 
-                  "pst" = c(100,200,500,1000))
+  plot_data <- filter(x, subregion == !!subregion, Species == !!species) |>
+    mutate(cells = log10(cells+1))
   
-  filter(monthly_phyto, subregion == !!subregion) |>
-    ggplot(aes(x=month, y=year, fill=mean)) +
-    geom_tile() +
-    scale_x_discrete(labels=month.abb) +
-    scale_fill_fermenter(breaks = breaks, palette="Spectral") +
+  ggplot(plot_data, aes(x = doy, y = year, color = cells)) +
+    geom_point(size=6, shape="square") +
     theme_classic() +
-    theme(axis.title = element_blank(), legend.title=element_blank())
+    scale_color_fermenter(name = "log cells/L", breaks = c(1,2,3,4,5), palette="Spectral") +
+    scale_y_continuous(name = element_blank(), breaks = unique(plot_data$year)) +
+    scale_x_continuous(breaks = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
+                       labels = month.abb) +
+    theme(axis.title = element_blank(), legend.position = "bottom") 
 }
+
+
+plot_phyto_heatmap_facet <- function(x,
+                                     species,
+                                     station) {
+  
+  myColors <- brewer.pal(5, "Spectral")
+  names(myColors) <- c(0,1)
+  
+  plot_data <- filter(x, location_id == !!station, Species %in% species) |>
+    mutate(cells = log10(cells+1))
+  
+  cell_breaks <- c(0,1,2,3,4,5)
+  myColors <- brewer.pal(length(cell_breaks),"Spectral")
+  names(myColors) <- cell_breaks
+  
+  ggplot(plot_data, aes(x = doy, y = year, color = cells)) +
+    geom_point(size=6, shape="square") +
+    facet_wrap(vars(Species)) +
+    theme_classic() +
+    scale_color_fermenter(name = "log cells/L", 
+                          breaks = c(0,1,2,3,4,5), 
+                          palette="Spectral") +
+    #scale_color_manual(name = "log cells/L", values = myColors) +
+    scale_y_continuous(name = element_blank(), breaks = unique(plot_data$year)) +
+    scale_x_continuous(breaks = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
+                       labels = month.abb) +
+    theme(axis.title = element_blank(), legend.position = "bottom") 
+}
+
 
 
 plot_phyto_scatter <- function(x, subregion, threshold, group) {
@@ -83,4 +114,54 @@ plot_phyto_scatter <- function(x, subregion, threshold, group) {
     theme_classic() +
     labs(x = "Date", y = "Cells/L")
 }
+
+
+plot_timeseries <- function(x, subregion, threshold, group) {
+  
+  plot_spec = switch(group,
+                     "ast" = c("Pseudo-nitzschia sp.", "Pseudo-nitzschia delicatissima gr.", "Pseudo-nitzschia seriata gr."),
+                     "dst" = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", "Dinophysis rotundata", "Dinophysis sp."),
+                     "pst" = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", "Alexandrium minutum"))
+  
+  plot_data <- filter(x, subregion %in% !!subregion)
+  
+  filter(plot_data, Species %in% plot_spec) |>
+    filter(cells > 0) |>
+    ggplot(aes(x = `Date Collected`, y = cells)) +
+    geom_line(aes(linetype = Species)) +
+    theme_classic() +
+    labs(x = "Date", y = "Cells/L") +
+    theme(legend.position = "bottom")
+}
+
+
+
+match_phyto_toxin <- function(x, y, group, subregion) {
+  phyto_spec = switch(group,
+                      dst = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", "Dinophysis rotundata", "Dinophysis sp."),
+                      pst = c("Alexandrium sp.", "Alexandrium Tamarense", "Alexandrium catenella", "Alexandrium minutum"))
+  
+  xx <- filter(x, 
+               subregion == !!subregion,
+               Species %in% phyto_spec)
+  
+  yy <- filter(y, subregion %in% !!subregion)
+  
+  joined = left_join(xx, yy, by=c("id"))
+  
+  return(joined)
+}
+
+
+
+#ggplot(plot_data, aes(x=doy, y=cells)) + 
+#  geom_point() +
+#  theme_classic() +
+#  scale_x_continuous(breaks = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
+#                     labels = month.abb) +
+#  theme(axis.title.x = element_blank(), legend.position = "bottom") +
+#  labs(y = "Log Cells/L")
+
+
+#myColors <- c("#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c")
 
