@@ -157,13 +157,15 @@ read_microbio_data <- function() {
   mb24 <- read_excel(here::here("data", "tbe_Microbiology Data 2024.xlsx"))
   mb25 <- read_excel(here::here("data", "Microbiology Data for 2025.xlsx"))
   
-  r <- bind_rows(mb24, mb25)
+  r <- bind_rows(mb24, mb25) |>
+    add_subregion() |>
+    mutate(`Sampling date` = as.Date(`Sampling date`))
   
   return(r)
 }
 
+source(here::here("code", "19_mbdata_functions.R"))
 source(here::here("code", "21_phyto_functions.R"))
 source(here::here("code", "23_biotoxin_functions.R"))
-source(here::here("code", "phyto_toxin_functions.R"))
 
 
