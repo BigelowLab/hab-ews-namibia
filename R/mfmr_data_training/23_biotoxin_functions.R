@@ -10,10 +10,13 @@ plot_okadaic <- function(btx,
   
   if (length(subregion) > 1) {
     p <- ggplot(plot_data, aes(x = `Sampling Date`, y = okadaic_acid)) +
-      geom_point(aes(shape = subregion), color="blue") +
+      geom_point(aes(shape = subregion, color=subregion)) +
+      scale_x_date(date_labels = "%d-%b-%y", date_breaks = "3 months") +
       theme_classic() +
       labs(x=NULL, y=ylab) + 
-      theme(legend.position = "bottom", legend.title = element_blank())
+      theme(legend.position = "bottom", 
+            legend.title = element_blank(),
+            axis.text.x = element_text(angle = 90, vjust=0.5, size=8))
   } else {
     p <- ggplot(plot_data, aes(x = `Sampling Date`, y = okadaic_acid)) +
       geom_point(color="blue") +
