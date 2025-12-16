@@ -10,17 +10,22 @@ plot_okadaic <- function(btx,
   
   if (length(subregion) > 1) {
     p <- ggplot(plot_data, aes(x = `Sampling Date`, y = okadaic_acid)) +
-      geom_point(aes(shape = subregion, color=subregion)) +
-      scale_x_date(date_labels = "%d-%b-%y", date_breaks = "3 months") +
+      geom_point(aes(shape = subregion, color= subregion), size = 2.5) +
+      scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
       theme_classic() +
       labs(x=NULL, y=ylab) + 
-      theme(legend.position = "bottom", 
-            legend.title = element_blank(),
-            axis.text.x = element_text(angle = 90, vjust=0.5, size=8))
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) +
+      scale_color_manual(labels = c("Pond 1", "Pond 2"), values = c("blue", "red")) +
+      #scale_shape_discrete(labels = c("Pond 1", "Pond 2")) +
+      scale_shape_manual(labels = c("Pond 1", "Pond 2"), values = c(1, 3))
   } else {
     p <- ggplot(plot_data, aes(x = `Sampling Date`, y = okadaic_acid)) +
-      geom_point(color="blue") +
+      geom_point(color="blue", size = 2.5) +
+      scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
       theme_classic() +
+      theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) +
+      scale_y_continuous(expand = c(0, 0)) + 
       labs(x=NULL, y=ylab) 
   }
   
@@ -44,14 +49,22 @@ plot_yessotoxin <- function(btx,
   
   if (length(subregion) > 1) {
     p <- ggplot(plot_data, aes(x = `Sampling Date`, y = `Yessotoxin value`)) +
-      geom_point(aes(shape = subregion), color="blue") +
+      geom_point(aes(shape = Station, color=Station), size = 2.5) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
       theme_classic() +
       labs(x=NULL, y=ylab) + 
-      theme(legend.position = "bottom", legend.title = element_blank())
+      theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) +
+      scale_color_manual(labels = c("Pond 1", "Pond 2"), values = c("blue", "red")) +
+      #scale_shape_discrete(labels = c("Pond 1", "Pond 2")) +
+      scale_shape_manual(labels = c("Pond 1", "Pond 2"), values = c(1, 3))
   } else {
     p <- ggplot(plot_data, aes(x = `Sampling Date`, y = `Yessotoxin value`)) +
-      geom_point(color="blue") +
+      geom_point(color="blue", size = 2.5) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
       theme_classic() +
+      theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) +
       labs(x=NULL, y=ylab) 
   }
   return(p)
@@ -64,16 +77,21 @@ plot_saxitoxin <- function(btx, subregion, threshold = 80, ylab = "PST value ug 
   
   if (length(subregion) > 1) {
     ggplot(plot_data, aes(x = `Sampling Date`, y = `PSP Value`)) +
-      geom_point(aes(shape = subregion), color="blue") +
+      geom_point(aes(shape = subregion), color="blue", size = 2.5) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
       geom_hline(yintercept = threshold, color = "red") +
       theme_classic() +
       labs(x=NULL, y=ylab) + 
-      theme(legend.position = "bottom", legend.title = element_blank())
+      theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8))
   } else {
     ggplot(plot_data, aes(x = `Sampling Date`, y = `PSP Value`)) +
-      geom_point(color="blue") +
+      geom_point(color="blue", size = 2.5) +
+      scale_y_continuous(expand = c(0, 0)) +
+      scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
       geom_hline(yintercept = threshold, color = "red") +
       theme_classic() +
+      theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) +
       labs(x=NULL, y=ylab)
   }
 }
@@ -87,13 +105,15 @@ plot_pst_heatmap <- function(y, subregion) {
   filter(y, subregion == !!subregion) |>
     ggplot(aes(x = doy, y = year, color = pst_class)) +
     geom_point(size=6, shape="square") +
+    scale_y_continuous(expand = c(0, 0)) +
+    scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
     facet_wrap(vars(Station)) +
     theme_classic() +
     scale_color_manual(name="PST Level", values = myColors, labels=c("0", "<80", ">80")) +
     scale_y_continuous(name = element_blank(), breaks = unique(y$year)) +
     scale_x_continuous(breaks = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
                        labels = month.abb) +
-    theme(axis.title = element_blank()) 
+    theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) 
 }
 
 
@@ -106,11 +126,12 @@ plot_dst_heatmap <- function(y, subregion) {
     geom_point(size=5, shape="square") +
     facet_wrap(vars(Station)) +
     theme_classic() +
+    scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
     scale_color_manual(name="Okadaic Acid Level", values = myColors, labels=c("<0.16", ">0.16")) +
     scale_y_continuous(name = element_blank(), breaks = unique(y$year)) +
     scale_x_continuous(breaks = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
                        labels = month.abb) +
-    theme(axis.title = element_blank()) 
+    theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) 
 }
 
 

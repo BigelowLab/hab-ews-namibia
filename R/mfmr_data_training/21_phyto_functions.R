@@ -37,7 +37,7 @@ plot_phyto_barplot <- function(monthly_phyto,
     geom_bar(stat = "identity", position = "dodge") +
     scale_y_continuous(expand = c(0, 0)) + 
     scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
-    labs(x=element_blank(), y=element_blank()) +
+    labs(x = (NULL), y= "Average Cells/L") +
     theme_classic() +
     theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
     guides(fill = guide_legend(nrow = 1)) +
@@ -110,6 +110,7 @@ plot_phyto_scatter <- function(x, subregion, threshold, group) {
   filter(plot_data, Species %in% plot_spec) |>
     filter(cells > 0) |>
     ggplot(aes(x = `Date Collected`, y = cells)) +
+    scale_y_continuous(expand = c(0, 0)) + 
     geom_point(color = "blue") +
     theme_classic() +
     labs(x = "Date", y = "Cells/L")

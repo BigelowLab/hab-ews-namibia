@@ -9,12 +9,12 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.id="pr
 ```
 
 ```{r  message=FALSE, echo=FALSE}
-source("../setup.R")
+source("setup.R")
 ```
 
 ```{r, echo=FALSE, fig.align='center', out.width="50%", height="50%"}
 # adds coat of arms to report
-include_graphics(path = "../data/coat of Arms JPG.jpg")
+include_graphics(path = "data/namibia_coat_smaller.jpg")
 ```
 
 # THE NAMIBIAN SHELLFISH SANITATION PROGRAMME (NSSP) REVIEW REPORT FOR 2024/25
@@ -36,7 +36,7 @@ y <- read_toxin_data()
 # found the answer here: https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin
 library(RColorBrewer)
 years <- unique(x$year)
-myColors <- brewer.pal(length(years),"Spectral")
+myColors <- brewer.pal(length(years),"Set1")
 names(myColors) <- years
 ```
 
@@ -190,14 +190,17 @@ plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="wb1")
 ```{r warning=FALSE, echo=FALSE, fig.cap="PST tests for oysters for Aquapark 1. Red line represents the Codex limit."}
 filter(y, Station %in% c("Fermar Seafoods CC (109)", "NamOysters cc Aquapark 1 (101)")) |>
   ggplot(aes(x = `Sampling Date`, y = `PSP Value`)) +
-  geom_point(color="blue") +
+  scale_y_continuous(expand = c(0, 0)) +
+  geom_point(color="blue", size = 2) +
   geom_hline(yintercept = 80, color="red") +
   theme_classic() +
+  theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) +
+  scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
   labs(x=NULL, y="PST value ug STX eq/100g") 
 ```
 
 
-```{r fig.cap="PST tests in abalone at Aquapark 1 Red line represents the Codex limit."}
+```{r fig.cap="PST tests in Oysters at Aquapark 1 Red line represents the Codex limit."}
 plot_saxitoxin(y, subregion = "wb1")
 ```
 
@@ -218,11 +221,16 @@ plot_phyto_barplot(al_monthly_mean, colors=myColors, subregion="wb4_pond2")
 ```{r warning=FALSE, echo=FALSE, fig.cap="PST tests for oysters for Aquapark 1. Red line represents the Codex limit."}
 filter(y, Station %in% c("Aquapark 4 (112)", "Nam Oysters SALT PANS (115)")) |>
   ggplot(aes(x = `Sampling Date`, y = `PSP Value`)) +
-  geom_point(aes(shape = Station, color=Station)) +
+  geom_point(aes(shape = Station, color=Station), size = 2.5) +
+  scale_y_continuous(expand = c(0, 0)) +
   geom_hline(yintercept = 80, color="red") +
   theme_classic() +
   labs(x=NULL, y="PST value ug STX eq/100g") + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", legend.title = element_blank(),axis.text.x = element_text(angle = 90, vjust=0.5, size=8)) +
+  scale_x_date(date_labels = "%d-%b-%y",date_breaks = "3 months") +
+  scale_color_manual(labels = c("Pond 1", "Pond 2"), values = c("blue", "red")) +
+  #scale_shape_discrete(labels = c("Pond 1", "Pond 2")) +
+  scale_shape_manual(labels = c("Pond 1", "Pond 2"), values = c(1, 3))
 ```
 
 ### Lüderitz second lagoon (PA L2) for oysters
