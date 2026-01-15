@@ -12,16 +12,19 @@ get_monthly_stats <- function(x, group) {
                              "Dinophysis rotundata", "Dinophysis sp."),
                      pst = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", 
                              "Alexandrium minutum"))
-
-  filter(x, Species %in% phyto_sp) |>
-    group_by(subregion, year, month) |>
-    summarise(mean = mean(cells),
-              med = median(cells),
-              max = max(cells),
-              sd = sd(cells, na.rm = TRUE),  # Standard deviation
-              n = n(),                       # Number of observations
-              se = sd / sqrt(n),             # Standard error
-              .groups = "drop")
+    
+    filter(x, Species %in% phyto_sp) |>
+      group_by(subregion, `Date Collected`) |>
+      summarise(cells = sum(cells)) |> # find the weekly sum of all species
+      mutate(month = format(`Date Collected`, format = "%m"),
+             year = format(`Date Collected`, format = "%Y")) |>
+      group_by(subregion, year, month) |> 
+      summarise(mean = mean(cells), # find the monthly stats based on weekly values
+                med = median(cells),
+                max = max(cells),
+                sd = sd(cells),
+                n = n(),
+                se = sd / sqrt(n))
 }
 
 #' Plots heatmap of monthly cell abundance statistic (ie mean, median, etc)
@@ -39,7 +42,7 @@ plot_phyto_barplot <- function(monthly_phyto,
     scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
     labs(x = (NULL), y= "Average Cells/L") +
     theme_classic() +
-    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank()) +
+    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
     guides(fill = guide_legend(nrow = 1)) +
     scale_fill_manual(name = "year", values = colors)
 }
