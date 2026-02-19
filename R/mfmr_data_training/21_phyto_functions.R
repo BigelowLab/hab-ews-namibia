@@ -30,12 +30,14 @@ get_monthly_stats <- function(x, group) {
 #' Plots heatmap of monthly cell abundance statistic (ie mean, median, etc)
 #' @param monthly_phyto table of computed cell abundance statistics, one row per year, month
 #' @param subregion character string indicating which subregion to make the plot for
+#' @param errorbar logical if true adds stadard error bars
 #' @returns a ggplot barplot
 plot_phyto_barplot <- function(monthly_phyto,
                                colors = myColors,
-                               subregion) {
+                               subregion,
+                               errorbar = FALSE) {
   
-  filter(monthly_phyto, subregion == !!subregion) |>
+  p = filter(monthly_phyto, subregion == !!subregion) |>
     ggplot(aes(x = month, y = mean, fill = year)) +
     geom_bar(stat = "identity", position = "dodge") +
     scale_y_continuous(expand = c(0, 0)) + 
@@ -45,6 +47,14 @@ plot_phyto_barplot <- function(monthly_phyto,
     theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
     guides(fill = guide_legend(nrow = 1)) +
     scale_fill_manual(name = "year", values = colors)
+  
+  if (errorbar) {
+    p = p + geom_errorbar(aes(ymin = mean - se, ymax = mean + se),
+                          width = 0.2,
+                          position = position_dodge(width = 0.9))
+  }
+  
+  return(p)
 }
 
 

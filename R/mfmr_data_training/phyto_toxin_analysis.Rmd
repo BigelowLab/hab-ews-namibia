@@ -1,0 +1,84 @@
+---
+title: "phyto_toxin_analysis"
+output: html_document
+---
+
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r  message=FALSE, echo=FALSE}
+source("../setup.R")
+```
+
+```{r}
+s = "wb1" # change the subregion here
+group = "dst" # change the phytoplankton species group here
+```
+
+```{r}
+phyto_sp <- switch(group,
+                     ast = c("Pseudo-nitzschia sp.", "Pseudo-nitzschia delicatissima gr.", 
+                             "Pseudo-nitzschia seriata gr."),
+                     dst = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", 
+                             "Dinophysis rotundata", "Dinophysis sp."),
+                     pst = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", 
+                             "Alexandrium minutum"))
+```
+
+
+```{r message=FALSE, echo=FALSE}
+x <- read_phyto_data() |>
+  filter(subregion == s,
+         Species %in% phyto_sp)
+```
+
+```{r warning=FALSE, echo=FALSE}
+y <- read_toxin_data() |>
+  filter(subregion == s) |>
+  select(`Sampling Date`, Station, id, `ASP Value`, `PSP Value`, okadaic_acid)
+```
+
+
+
+```{r}
+btx_lut = y$okadaic_acid # change toxin group here
+names(btx_lut) = y$id
+i_col = "id"
+```
+
+```{r}
+z = mutate(x, toxin = btx_lut[.data[[i_col]]]) |>
+  drop_na()
+```
+
+```{r warning = FALSE}
+ggplot(data=z, aes(x=cells, y=toxin)) +
+  geom_point()
+```
+
+Add correlation coefficients
+
+```{r warning = FALSE}
+ggplot(data=z, aes(y=toxin, x=cells)) +
+  geom_point() +
+  ggpubr::stat_cor(label.x.npc=0.5)
+```
+
+Add smoothing line
+
+```{r warning = FALSE}
+ggplot(data=z, aes(y=toxin, x=cells)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+
+```{r warning = FALSE}
+ggplot(data=z, aes(y=toxin, x=cells)) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  ggpubr::stat_cor(label.x.npc=0.5)
+```
+
