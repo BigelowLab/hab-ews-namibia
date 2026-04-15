@@ -1,0 +1,69 @@
+---
+title: "Work Plan"
+output: github_document
+---
+
+```{r echo=FALSE}
+root = "https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training"
+```
+
+```{r echo=FALSE}
+my_url = function(script_name) {
+  root = "https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training"
+  sprintf("[%s](%s/%s)",
+          script_name,
+          root,
+          script_name)
+}
+```
+
+
+<!--
+Source - https://stackoverflow.com/a/19953345
+Posted by VonC, modified by community. See post 'Timeline' for change history
+Retrieved 2026-04-15, License - CC BY-SA 3.0
+-->
+
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Week | Content                                            | Code                                                                                                                                                 |
++======+====================================================+======================================================================================================================================================+
+| 1    | - Intro to R, RStudio                              | [01_intro_data_loading_plotting.R](https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training/01_intro_data_loading_plotting.R)    |
+|      | - Package installation                             |                                                                                                                                                      |
+|      | - Programming basics                               |                                                                                                                                                      |
+|      | - Loading data                                     |                                                                                                                                                      |
+|      | - Basic graphics                                   |                                                                                                                                                      |
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 2    | - Load HAB monitoring data                         | [02_aquapark4_dinophysis.R](https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training/02_aquapark4_dinophysis.R)                  |
+|      | - Find summary statistics                          |                                                                                                                                                      |
+|      | - Filtering data by variable criteria              |                                                                                                                                                      |
+|      | - Making line and point plots                      |                                                                                                                                                      |
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 3    | - Filtering by group of variables                  | [03_weekly_phytoplankton.R](https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training/03_weekly_phytoplankton.R)                  |
+|      | - Making bar plots of weekly HAB cell counts       |                                                                                                                                                      |
+|      | - Using facets for many plots using variables      |                                                                                                                                                      |
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 4    | - Working with date class variables                |[04_monthly_summary.R](https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training/04_monthly_summary.R)                             |
+|      | - Making heatmaps                                  |                                                                                                                                                      |
+|      | - Using grouping to compute summary statistics     |                                                                                                                                                      |
+|      | - Incorporating three variables as plot aethstics  |                                                                                                                                                      |
+|      | - Adjusting plot color palettes                    |                                                                                                                                                      |
+|      | - Changing plot labels                             |                                                                                                                                                      |
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 5    | - Intro to RMarkdown                               | [05_rmarkdown_report.Rmd](https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training/05_rmarkdown_report.Rmd)                      |
+|      | - Output types; code vs text; code options         |                                                                                                                                                      |
+|      | - Markdown formatting syntax                       |                                                                                                                                                      |
+|      | - Produce a document that loads data, makes a plot |                                                                                                                                                      |
+|      | - Adjusting plot color palettes                    |                                                                                                                                                      |
+|      | - Changing plot labels                             |                                                                                                                                                      |
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 6    | - Building automated reports using rmarkdown       | [06_analysis_report.Rmd](https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training/06_analysis_report.Rmd)                        |
+|      | - Load monitoring data and subset                  |                                                                                                                                                      |
+|      | - Generate analysis plots                          |                                                                                                                                                      |
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 7    | - First assessment                                 | [07_review_assessment.Rmd](https://github.com/BigelowLab/hab-ews-namibia/blob/main/R/mfmr_data_training/07_review_assessment.Rmd)                    |
++------+----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+
+
+
+
