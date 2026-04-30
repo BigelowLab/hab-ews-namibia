@@ -16,7 +16,8 @@ get_monthly_stats <- function(x, group) {
     filter(x, Species %in% phyto_sp) |>
       group_by(subregion, `Date Collected`) |>
       summarise(cells = sum(cells)) |> # find the weekly sum of all species
-      mutate(month = format(`Date Collected`, format = "%m"),
+      mutate(#month = format(`Date Collected`, format = "%m"),
+             month = as.numeric(format(`Date Collected`, format = "%m")),
              year = format(`Date Collected`, format = "%Y")) |>
       group_by(subregion, year, month) |> 
       summarise(mean = mean(cells), # find the monthly stats based on weekly values
@@ -41,10 +42,22 @@ plot_phyto_barplot <- function(monthly_phyto,
     ggplot(aes(x = month, y = mean, fill = year)) +
     geom_bar(stat = "identity", position = "dodge") +
     scale_y_continuous(expand = c(0, 0)) + 
-    scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+    #scale_x_discrete(labels = function(x) month.abb[as.numeric(x)]) +
+    scale_x_continuous(
+      breaks = 1:12,
+      labels = month.abb,
+      minor_breaks = seq(1.5, 11.5, by = 1),
+      guide = guide_axis(minor.ticks = TRUE)
+    ) +
     labs(x = (NULL), y= "Average Cells/L") +
     theme_classic() +
-    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title = element_blank(), plot.title = element_text(hjust = 0.5)) +
+    theme(legend.position = "bottom", 
+          legend.direction = "horizontal", 
+          legend.title = element_blank(), 
+          plot.title = element_text(hjust = 0.5), 
+          axis.ticks.length.x = grid::unit(0, "cm"),
+          axis.minor.ticks.x.bottom = element_line(colour = "black"),
+          axis.minor.ticks.length.x = grid::unit(0.15, "cm")) +
     guides(fill = guide_legend(nrow = 1)) +
     scale_fill_manual(name = "year", values = colors)
   
