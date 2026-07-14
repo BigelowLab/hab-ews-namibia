@@ -5,7 +5,7 @@ installed = dplyr::as_tibble(installed.packages())
 
 # Required packages
 packages = list(
-  cran = c("readr", "dplyr", "ggplot2", "tidyr", "readxl", "forcats", "knitr", "kableExtra", "here", "RColorBrewer")
+  cran = c("readr", "dplyr", "ggplot2", "tidyr", "readxl", "forcats", "knitr", "kableExtra", "here", "RColorBrewer", "DBI", "odbc")
 )
 
 # If a required package isn't installed, install it; load the package
@@ -19,6 +19,11 @@ for (package in packages$cran){
 
 # project root
 here::i_am("setup.R")
+
+mariculture_db <- dbConnect(
+  odbc(),
+  Driver = "{Microsoft Access Driver (*.mdb, *.accdb)}",
+  DBQ = "Y:/MaricultureDB/Mariculture Database.accdb")
 
 read_stations <- function(file = here::here("data", "stations.xlsx")) {
   read_excel(file)
@@ -67,8 +72,10 @@ fix_species <- function(x, lut_file = here::here("data", "phyto_lut.xlsx")) {
 }
 
 # Phytoplankton monitoring data reader function
-read_phyto_data <- function(file = here::here("data", "phytoplankton_data.xlsx")) {
-  zz <- read_excel(file) |>
+read_phyto_data <- function() {
+  zz <- DBI::dbGetQuery(mariculture_db,
+                        "SELECT * FROM [Qry:Phytoplankton Total Cell/L Query]") |>
+    
     select(-`SumOfTransect Count`,     # remove columns that we won't use
            -Groups, 
            -`Toxin producing species`,
@@ -96,8 +103,9 @@ read_phyto_data <- function(file = here::here("data", "phytoplankton_data.xlsx")
     distinct() 
 }
 
-read_toxin_data <- function(file = here::here("data", "tbe_Biotoxin Tests_2019_2024.xlsx")) {
-  r <- read_excel(file) |>
+read_toxin_data <- function() {
+  r <- DBI::dbGetQuery(mariculture_db,
+                       "SELECT * FROM [tbe:Biotoxin Tests]") |>
     add_location_id() |>
     add_subregion() |>
     rowwise() |>
@@ -110,11 +118,11 @@ read_toxin_data <- function(file = here::here("data", "tbe_Biotoxin Tests_2019_2
                                                              `Total Okadaic Acid` == "under detection limit" ~ "0",
                                                              `Total Okadaic Acid` == "Not tested" ~ NA,
                                                              grepl(",", `Total Okadaic Acid value`) ~ gsub(",", ".", `Total Okadaic Acid value`))),
-            `Total DTX-1 value` = as.numeric(case_when(`Total DTX-1` == "Detected" ~ `Total DTX-1 value`,
-                                                       `Total DTX-1` == "Not Detected" ~ "0",
-                                                       `Total DTX-1` == "under detection limit" ~ "0",
-                                                       `Total DTX-1` == "Not tested" ~ NA,
-                                                       grepl(",", `Total DTX-1 value`) ~ gsub(",", ".", `Total DTX-1 value`))),
+           `Total DTX-1 value` = as.numeric(case_when(`Total DTX-1` == "Detected" ~ `Total DTX-1 value`,
+                                                      `Total DTX-1` == "Not Detected" ~ "0",
+                                                      `Total DTX-1` == "under detection limit" ~ "0",
+                                                      `Total DTX-1` == "Not tested" ~ NA,
+                                                      grepl(",", `Total DTX-1 value`) ~ gsub(",", ".", `Total DTX-1 value`))),
            `Yessotoxin value` = as.numeric(case_when(Yessotoxin == "Detected" ~ `Yessotoxin value`,
                                                      Yessotoxin == "Not detected" ~ "0",
                                                      Yessotoxin == "under detection limit" ~ "0",
@@ -149,23 +157,19 @@ read_nutrient_data <- function(file = here::here("data", "MultiMeter_Spectro-Dat
 
 # Alert threshold lookup reader
 read_threshold <- function(#file = "data/alert_thresholds.xlsx",
-                           file = here::here("data", "alert_thresholds.xlsx")) {
+  file = here::here("data", "alert_thresholds.xlsx")) {
   read_excel(file)
 }
 
 read_microbio_data <- function() {
-  mb24 <- read_excel(here::here("data", "tbe_Microbiology Data 2024.xlsx"))
-  mb25 <- read_excel(here::here("data", "Microbiology Data for 2025.xlsx"))
-  
-  r <- bind_rows(mb24, mb25) |>
+  mb_data<- DBI::dbGetQuery(mariculture_db,
+                            "SELECT * FROM [tbe:Microbiology]") |>
     add_subregion() |>
     mutate(`Sampling date` = as.Date(`Sampling date`))
   
-  return(r)
+  return(mb_data)
 }
 
 source(here::here("code", "19_mbdata_functions.R"))
 source(here::here("code", "21_phyto_functions.R"))
 source(here::here("code", "23_biotoxin_functions.R"))
-
-
