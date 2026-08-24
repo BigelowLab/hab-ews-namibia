@@ -7,26 +7,96 @@ get_monthly_stats <- function(x, group) {
   
   phyto_sp <- switch(group,
                      ast = c("Pseudo-nitzschia sp.", "Pseudo-nitzschia delicatissima gr.", 
-                             "Pseudo-nitzschia seriata gr."),
+                             "Pseudo-nitzschia seriata gr.", "Pseudo-nitzschia"),
                      dst = c("Dinophysis accuta", "Dinophysis acuminata", "Dinophysis fortii", 
-                             "Dinophysis rotundata", "Dinophysis sp."),
+                             "Dinophysis rotundata", "Dinophysis sp.", "Dinophysis"),
                      pst = c("Alexandrium sp.", "Alexandrium tamarense", "Alexandrium catenella", 
-                             "Alexandrium minutum"))
-    
-    filter(x, Species %in% phyto_sp) |>
-      group_by(subregion, `Date Collected`) |>
-      summarise(cells = sum(cells)) |> # find the weekly sum of all species
-      mutate(#month = format(`Date Collected`, format = "%m"),
-             month = as.numeric(format(`Date Collected`, format = "%m")),
-             year = format(`Date Collected`, format = "%Y")) |>
-      group_by(subregion, year, month) |> 
-      summarise(mean = mean(cells), # find the monthly stats based on weekly values
-                med = median(cells),
-                max = max(cells),
-                sd = sd(cells),
-                n = n(),
-                se = sd / sqrt(n))
+                             "Alexandrium minutum", "Alexandrium"))
+  
+  x_l2 = filter(x, subregion == "l2")
+  
+  a = get_monthly_stats.luderitz(x_l2, group) |>
+    filter(Genus %in% phyto_sp) |>
+    select(-Genus)
+  
+  
+  b = filter(x, 
+         Species %in% phyto_sp,
+         !subregion == "l2") |>
+    group_by(subregion, `Date Collected`) |>
+    summarise(cells = sum(cells)) |> # find the weekly sum of all species
+    mutate(#month = format(`Date Collected`, format = "%m"),
+           month = as.numeric(format(`Date Collected`, format = "%m")),
+           year = format(`Date Collected`, format = "%Y")) |>
+    group_by(subregion, year, month) |> 
+    summarise(total_cells = sum(cells),
+              mean = mean(cells), # find the monthly stats based on weekly values
+              med = median(cells),
+              max = max(cells),
+              sd = sd(cells),
+              n = n(),
+              se = sd / sqrt(n))
+  
+  r = bind_rows(a, b)
 }
+
+# add dplyr, stringr
+library(dplyr)
+
+
+get_monthly_stats.luderitz <- function(x, group) {
+  luderitz_stations <- c(
+    "NamOyster CC Luderitz (121)",
+    "Lagoon aquaculture CC (111)",
+    "Tetelestai Mariculture Luderitz (120)",
+    "Luderitz Mariculture (Pty) Ltd (105)"
+  )
+  
+  luderitz <- x |>
+    dplyr::filter(Station %in% luderitz_stations) |>
+    mutate(`Date Collected` = as.Date(`Date Collected`))
+  
+  station_samples <- luderitz |>
+    distinct(Station, `Date Collected`)
+  
+  genera <- c("Pseudo-nitzschia", "Alexandrium", "Dinophysis")
+  
+  hab <- luderitz |>
+    dplyr::filter(str_detect(Species, paste(genera, collapse="|"))) |>
+    mutate(Genus = str_extract(Species, paste(genera, collapse="|")))
+  
+  genus_counts <- hab |>
+    group_by(Genus, Station, `Date Collected`) |>
+    summarise(cells = sum(cells, na.rm = TRUE), .groups = "drop")
+  
+  complete_samples <- station_samples |>
+    crossing(Genus = genera)
+  
+  merged <- complete_samples |>
+    left_join(genus_counts, by = c("Genus","Station","Date Collected")) |>
+    mutate(cells = ifelse(is.na(cells), 0, cells))
+  
+  monthly_hab <- merged |>
+    mutate(
+      year = as.character(year(`Date Collected`)),
+      month = month(`Date Collected`)
+    ) |>
+    group_by(Genus, year, month) |>
+    summarise(
+      total_cells = sum(cells),
+      n = n(),
+      mean = total_cells / n,
+      max = max(cells),
+      sd = sd(cells, na.rm = TRUE),
+      #n = n(),
+      se = sd / sqrt(n),
+      .groups = "drop"
+    ) |>
+    mutate(subregion = "l2")
+  
+  return(monthly_hab)
+}
+
 
 #' Plots heatmap of monthly cell abundance statistic (ie mean, median, etc)
 #' @param monthly_phyto table of computed cell abundance statistics, one row per year, month
